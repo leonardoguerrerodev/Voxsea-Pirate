@@ -9,7 +9,10 @@ extends Node3D
 
 var _sails: Dictionary = {}
 var _dirty: bool = true
-var _canvas: StandardMaterial3D = _material(Color(0.92, 0.88, 0.78), true)
+## Cuánto se infla la vela con todo el paño (m).
+const BILLOW: float = 0.8
+
+var _canvas: ShaderMaterial = _sail_material()
 var _wood: StandardMaterial3D = _material(Color(0.42, 0.28, 0.14), false)
 var _iron: StandardMaterial3D = _material(Color(0.25, 0.25, 0.28), false)
 
@@ -24,8 +27,11 @@ func _process(_delta: float) -> void:
 		_rebuild()
 	for cell: Vector3i in _sails:
 		var pivot: Node3D = _sails[cell]
-		pivot.rotation.y = rig.sail_trims.get(cell, 0.0)
+		var trim: float = rig.sail_trims.get(cell, 0.0)
+		pivot.rotation.y = trim
 		pivot.scale.y = maxf(rig.sail_amount, 0.05)
+		# Se infla hacia el lado contrario al que se abrió (sotavento).
+		(pivot.get_child(0) as GeometryInstance3D).set_instance_shader_parameter("billow", -signf(trim) * BILLOW * rig.sail_amount)
 
 
 func _rebuild() -> void:
@@ -69,9 +75,12 @@ func _add_sail(cell: Vector3i, top: Vector3, material: VoxelMaterial) -> void:
 	var height: float = material.mast_height * 0.8
 	var width: float = material.sail_area / height
 	var cloth: MeshInstance3D = MeshInstance3D.new()
-	var box: BoxMesh = BoxMesh.new()
-	box.size = Vector3(0.05, height, width)
-	cloth.mesh = box
+	var plane: PlaneMesh = PlaneMesh.new()
+	plane.orientation = PlaneMesh.FACE_X
+	plane.size = Vector2(width, height)
+	plane.subdivide_width = 12
+	plane.subdivide_depth = 12
+	cloth.mesh = plane
 	cloth.material_override = _canvas
 	# La cuerda (ancho) va a lo largo del barco; el borde de ataque, en el mástil.
 	cloth.position = Vector3(0.0, -height * 0.5, width * 0.5)
@@ -86,6 +95,13 @@ func _mesh(mesh: Mesh, material: Material, at: Vector3) -> MeshInstance3D:
 	instance.position = at
 	add_child(instance)
 	return instance
+
+
+static func _sail_material() -> ShaderMaterial:
+	var material: ShaderMaterial = ShaderMaterial.new()
+	material.shader = load("res://sailing/sail.gdshader")
+	material.set_shader_parameter("canvas", load("res://assets/textures/canvas.jpg"))
+	return material
 
 
 static func _material(color: Color, two_sided: bool) -> StandardMaterial3D:

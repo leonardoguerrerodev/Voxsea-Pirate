@@ -18,7 +18,10 @@ Hecho: fases 0 a 5 (océano Gerstner, barco voxel con Voxel Tools, flotabilidad 
 5. Correr los tests (ver "Tests" abajo): los 10 deben dar OK.
 6. Jugar y medir: `../Godot_v4.7.2-stable_linux.x86_64 --path . --print-fps`.
 
+**Casco modelado (2026-10-01, Nobara):** se decidió pasar a cascos fijos modelados (estilo Sea of Thieves) con física voxel invisible: `tools/hull_to_grid.py` (Blender) toma un `.glb` (Tripo), lo orienta, escala, simetriza, alinea la cubierta con un borde de voxel, lo pinta por pieza (`<casco>.materials.json`, texturas en `assets/textures/`) y escribe la malla + la grilla `.grid`. `HullGrid.load_grid()` la carga en `ShipData`. El sandbox usa la balandra (`sandbox/sloop_ship.gd`, 20 m); `test_hull` cubre flotar, escorar e inundar. El interior (mamparos, cuartos, props) lo construye el jugador. Los `.glb` crudos de Tripo viven en `models/` (fuera de git).
+
 **Pendientes inmediatos:**
+- Balandra: abrir la escotilla en la grilla y una escalera a la bodega; mostrar los voxels que construye el jugador (la malla voxel del casco está oculta); mástiles con modelo (set de Tripo pintado por pieza); texturas de Canva en resolución completa (hoy miniaturas de 200 px).
 - Medir FPS en el Nobara a 1440p y 1080p (en el Mac: 17 fps a 480×270; Sky3D y el mar son lo más caro). Si falta, menú dev → Gráficos.
 - Pruebas a mano que ningún test cubre: construir un casco de bote en menos de 5 min (fase 3), sensación de navegación (`ShipRig.sail_scale`), brillo de la noche, editar `default_waves.tres` en el inspector remoto (fase 1).
 - Fase 5: falta la estela (espuma persistente).
@@ -86,6 +89,7 @@ res://
 ├── creatures/     # Abisales y su IA
 ├── fishing/       # caña, red, arpón, tablas de peces
 ├── world/         # MapCoords, Weather (autoload), WeatherView; zonas, islas, ruinas, astillero
+├── tools/         # scripts de Blender (hull_to_grid.py: casco modelado → malla + grilla)
 ├── ui/            # game_ui.gd (ayuda F1, coordenadas, pausa Esc) y dev_menu.gd (botón Dev en la pausa), temporales
 └── assets/        # modelos, texturas, audio (LFS)
 tests/             # chequeos headless; corren dentro de tests/run.tscn
@@ -161,6 +165,8 @@ Detalle y criterios de "terminado" en `docs/plan.md`.
 
 | Riesgo | Plan |
 |---|---|
+| Modelos de Tripo en plan gratis: licencia no comercial (sin confirmar en la página oficial). `assets/ships/sloop/sloop.glb` deriva de uno | Antes de vender: plan pago de Tripo o rehacer los modelos en Blender |
+| Hidrostática completa al editar en el mar: 45 ms con la balandra de 20 m (21×21×41, Nobara) | Hilo aparte (`WorkerThreadPool`) antes de la fase 6 si un cañonazo se nota |
 | Voxel Tools GDExtension "poco probada" (aviso del autor) | Solo usamos `VoxelBuffer` + `VoxelMesherCubes`, aislados en `ShipMesh`. Si falla, reemplazar ese archivo por un mesher propio; `ShipData` no depende del addon |
 | Remallado en el hilo principal | Medido: 0,15–0,19 ms chunk realista, 6,6 ms peor caso (MacPro). Pasar a `WorkerThreadPool` si una edición grande se nota |
 | Caminar sobre una cubierta que se mueve y cabecea | El controlador FPS hereda la velocidad del barco; se resuelve en fase 3/5 |
@@ -186,4 +192,4 @@ Detalle y criterios de "terminado" en `docs/plan.md`.
 
 ---
 
-Última actualización: Sesión 2 (2026-10-01, MacPro) — Fases 0 a 5 + coordenadas, brújula, día/noche (Sky3D), clima y menú dev. Siguiente: medir en el Nobara y Fase 6.
+Última actualización: Sesión 3 (2026-10-01, Nobara) — Casco modelado (balandra de Tripo, 20 m) con física voxel, pintado por pieza, vela plana con lona, mástiles de 80/200 kg; 11 tests en verde. Siguiente: escotilla y bodega, voxels del jugador visibles, mástiles modelados; después Fase 6.
