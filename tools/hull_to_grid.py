@@ -5,8 +5,10 @@
 # pieza tripo_part_N con un material de MATERIALS; las demás quedan 'casco'.
 # Escribe <salida>.glb (malla reducida, en ejes de Godot, esquina mínima en el
 # origen) y <salida>.grid (cabecera de 3 int32 con el tamaño + un byte por voxel
-# en el orden ZXY de ShipData). Cada voxel que toca la superficie del modelo es
-# tablón; el aire de adentro lo encuentra ShipHydrostatics.
+# en el orden ZXY: índice = y + x·sy + z·sy·sx). Cada voxel que toca la superficie
+# del modelo es casco (1); el aire encerrado por el casco es interior (2). Con eso
+# HullProfile calcula una vez la masa y las celdas de flotación; en juego no hay
+# grilla.
 # Supone que la proa del modelo mira a -x en Blender (como sale de Tripo); el
 # script la deja en -z de Godot, el frente del barco en el juego.
 import sys
@@ -19,17 +21,18 @@ import numpy as np
 from mathutils import Matrix
 
 VOXEL = 0.5
-PLANK = 2
+SHELL = 1
+INTERIOR = 2
 TEXTURES = os.path.join(os.path.dirname(__file__), "..", "assets", "textures")
-## Materiales estilizados: textura (o ninguna) y color. Con textura, el color
-## multiplica (Godot lo recibe como albedo_color). Metros por repetición de textura.
+## Materiales estilizados: textura de la paleta (assets/textures, o ninguna) y color.
+## Con textura, el color multiplica (Godot lo recibe como albedo_color).
 MATERIALS = {
-    "casco": ("planks.jpg", (1.0, 0.85, 0.75)),
-    "cubierta": ("planks.jpg", (1.0, 0.95, 0.85)),
-    "borda": ("planks.jpg", (0.85, 0.65, 0.5)),
-    "alquitran": ("planks.jpg", (0.22, 0.22, 0.26)),
-    "franja": (None, (0.15, 0.45, 0.42)),
-    "oscura": (None, (0.25, 0.15, 0.08)),
+    "casco": ("wood_warm.jpg", (1.0, 1.0, 1.0)),
+    "cubierta": ("wood_deck.jpg", (1.0, 1.0, 1.0)),
+    "borda": ("wood_dark.jpg", (1.0, 1.0, 1.0)),
+    "alquitran": ("tar.jpg", (1.0, 1.0, 1.0)),
+    "franja": ("wood_teal.jpg", (1.0, 1.0, 1.0)),
+    "oscura": ("wood_dark.jpg", (0.7, 0.7, 0.7)),
 }
 TILE = 1.5
 
@@ -116,10 +119,29 @@ shift = (grid[0] * VOXEL - extent[0]) / 2
 godot = np.stack([p[:, 0] + shift, p[:, 2], extent[2] - p[:, 1]], 1)
 cells = np.minimum((godot / VOXEL).astype(int), grid - 1)
 voxels = np.zeros((grid[2], grid[0], grid[1]), np.uint8)  # [z][x][y] = orden ZXY
-voxels[cells[:, 2], cells[:, 0], cells[:, 1]] = PLANK
+voxels[cells[:, 2], cells[:, 0], cells[:, 1]] = SHELL
 # Simetría babor-estribor: un modelo de IA nunca es exacto y un costado más
 # grueso que el otro escora el barco.
 voxels = np.maximum(voxels, voxels[:, ::-1, :])
+# Aire interior: lo que no alcanza el aire de afuera entrando por cualquier borde
+# de la grilla (también por arriba) sin cruzar casco, con 6 vecinos.
+free = voxels == 0
+outside = np.zeros_like(free)
+for face in (np.s_[0], np.s_[-1], np.s_[:, 0], np.s_[:, -1], np.s_[:, :, 0], np.s_[:, :, -1]):
+    outside[face] = free[face]
+while True:
+    grown = outside.copy()
+    grown[1:] |= outside[:-1]
+    grown[:-1] |= outside[1:]
+    grown[:, 1:] |= outside[:, :-1]
+    grown[:, :-1] |= outside[:, 1:]
+    grown[:, :, 1:] |= outside[:, :, :-1]
+    grown[:, :, :-1] |= outside[:, :, 1:]
+    grown &= free
+    if (grown == outside).all():
+        break
+    outside = grown
+voxels[free & ~outside] = INTERIOR
 with open(out + ".grid", "wb") as f:
     f.write(struct.pack("<3i", *grid))
     f.write(voxels.tobytes())
@@ -147,4 +169,4 @@ mod = hull.modifiers.new("reduce", "DECIMATE")
 mod.ratio = ratio
 bpy.ops.object.modifier_apply(modifier=mod.name)
 bpy.ops.export_scene.gltf(filepath=out + ".glb", use_selection=True, export_yup=True)
-print("grilla", grid.tolist(), "voxels", int((voxels > 0).sum()), "eslora", length, "triángulos", len(hull.data.polygons))
+print("grilla", grid.tolist(), "casco", int((voxels == SHELL).sum()), "interior", int((voxels == INTERIOR).sum()), "eslora", length, "triángulos", len(hull.data.polygons))

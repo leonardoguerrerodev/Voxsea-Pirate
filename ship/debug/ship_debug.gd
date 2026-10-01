@@ -1,6 +1,5 @@
 extends Node3D
-## Depuración del barco, se alterna con F3: aire seco por compartimento (un color
-## cada uno; lo inundado desaparece) y centro de gravedad (esfera roja).
+## Depuración del barco, se alterna con F3: centro de gravedad (esfera roja).
 
 @export var ship: ShipBody
 

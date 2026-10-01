@@ -4,22 +4,20 @@
 [ext_resource type="Shader" path="res://ocean/ocean.gdshader" id="3_shader"]
 [ext_resource type="Resource" path="res://ocean/default_waves.tres" id="4_waves"]
 [ext_resource type="Script" path="res://ocean/buoyant_body.gd" id="5_buoy"]
-[ext_resource type="Script" path="res://sandbox/sloop_ship.gd" id="6_ship"]
+[ext_resource type="Script" path="res://ship/physics/ship_body.gd" id="6_ship"]
 [ext_resource type="PackedScene" path="res://assets/ships/sloop/sloop.glb" id="22_sloop"]
-[ext_resource type="Resource" path="res://ship/data/materials.tres" id="7_mats"]
-[ext_resource type="Script" path="res://ship/mesh/ship_mesh.gd" id="8_mesh"]
 [ext_resource type="Script" path="res://ship/mesh/water_mask.gd" id="9_mask"]
 [ext_resource type="Script" path="res://ship/debug/ship_debug.gd" id="10_debug"]
-[ext_resource type="Script" path="res://ship/physics/ship_deck.gd" id="11_deck"]
 [ext_resource type="PackedScene" path="res://player/player.tscn" id="12_player"]
-[ext_resource type="Script" path="res://building/ship_builder.gd" id="13_builder"]
-[ext_resource type="Shader" path="res://ship/mesh/hull.gdshader" id="14_hull"]
 [ext_resource type="Script" path="res://ui/game_ui.gd" id="16_ui"]
 [ext_resource type="Script" path="res://sailing/ship_rig.gd" id="17_rig"]
 [ext_resource type="Script" path="res://sailing/ship_parts_view.gd" id="18_parts"]
 [ext_resource type="Script" path="res://sailing/helm_control.gd" id="19_helm"]
 [ext_resource type="Script" path="res://addons/sky_3d/src/Sky3D.gd" id="20_sky"]
 [ext_resource type="Script" path="res://world/weather_view.gd" id="21_weather"]
+[ext_resource type="Script" path="res://ship/physics/hull_collision.gd" id="23_collision"]
+[ext_resource type="Script" path="res://sailing/ship_part.gd" id="24_part"]
+[ext_resource type="Script" path="res://decor/decor_placer.gd" id="25_placer"]
 
 [sub_resource type="PlaneMesh" id="sea_mesh"]
 size = Vector2(512, 512)
@@ -36,16 +34,6 @@ size = Vector2(8000, 8000)
 render_priority = -1
 shader = ExtResource("3_shader")
 shader_parameter/inner_radius = 250.0
-
-[sub_resource type="ShaderMaterial" id="hull_mat"]
-shader = ExtResource("14_hull")
-
-[sub_resource type="StandardMaterial3D" id="dry_air_mat"]
-transparency = 1
-no_depth_test = true
-shading_mode = 0
-vertex_color_use_as_albedo = true
-albedo_color = Color(1, 1, 1, 0.35)
 
 [sub_resource type="StandardMaterial3D" id="com_mat"]
 no_depth_test = true
@@ -104,19 +92,31 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
 can_sleep = false
 script = ExtResource("6_ship")
 waves = ExtResource("4_waves")
-catalog = ExtResource("7_mats")
+grid_path = "res://assets/ships/sloop/sloop.grid"
 
 [node name="Model" parent="TestShip" instance=ExtResource("22_sloop")]
 
-[node name="Hull" type="Node3D" parent="TestShip" node_paths=PackedStringArray("ship")]
-visible = false
-script = ExtResource("8_mesh")
-catalog = ExtResource("7_mats")
-ship = NodePath("..")
-surface_material = SubResource("hull_mat")
+[node name="Collision" type="AnimatableBody3D" parent="TestShip" node_paths=PackedStringArray("model")]
+script = ExtResource("23_collision")
+model = NodePath("../Model")
 
-[node name="Deck" type="AnimatableBody3D" parent="TestShip"]
-script = ExtResource("11_deck")
+[node name="Sail" type="Node3D" parent="TestShip"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 5.368, 7.6)
+script = ExtResource("24_part")
+kind = 1
+mass = 200.0
+sail_area = 100.0
+mast_height = 12.0
+
+[node name="Helm" type="Node3D" parent="TestShip"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 7.416, 17.4)
+script = ExtResource("24_part")
+kind = 2
+
+[node name="Anchor" type="Node3D" parent="TestShip"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 6.125, 4.1)
+script = ExtResource("24_part")
+kind = 3
 
 [node name="Player" parent="TestShip" instance=ExtResource("12_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 5.6, 13)
@@ -138,26 +138,16 @@ ocean = NodePath("../../Ocean")
 script = ExtResource("10_debug")
 ship = NodePath("..")
 
-[node name="DryAir" type="Node3D" parent="TestShip/Debug" node_paths=PackedStringArray("ship")]
-script = ExtResource("8_mesh")
-ship = NodePath("../..")
-show_dry_air = true
-surface_material = SubResource("dry_air_mat")
-
 [node name="CenterOfMass" type="MeshInstance3D" parent="TestShip/Debug"]
 mesh = SubResource("com_mesh")
 
-[node name="Builder" type="Node" parent="." node_paths=PackedStringArray("ship", "camera", "player")]
-script = ExtResource("13_builder")
-ship = NodePath("../TestShip")
-camera = NodePath("../TestShip/Player/Head/Camera")
-player = NodePath("../TestShip/Player")
-
-[node name="GameUI" type="CanvasLayer" parent="." node_paths=PackedStringArray("player", "ship", "sky")]
+[node name="GameUI" type="CanvasLayer" parent="." node_paths=PackedStringArray("player", "ship", "sky", "ocean", "placer")]
 script = ExtResource("16_ui")
 player = NodePath("../TestShip/Player")
 ship = NodePath("../TestShip")
 sky = NodePath("../Sky3D")
+ocean = NodePath("../Ocean")
+placer = NodePath("../Decor")
 
 [node name="Helm" type="Node" parent="." node_paths=PackedStringArray("ship", "rig", "player")]
 script = ExtResource("19_helm")
@@ -168,3 +158,9 @@ player = NodePath("../TestShip/Player")
 [node name="WeatherView" type="Node" parent="." node_paths=PackedStringArray("sky")]
 script = ExtResource("21_weather")
 sky = NodePath("../Sky3D")
+
+[node name="Decor" type="Node" parent="." node_paths=PackedStringArray("ship", "player", "camera")]
+script = ExtResource("25_placer")
+ship = NodePath("../TestShip")
+player = NodePath("../TestShip/Player")
+camera = NodePath("../TestShip/Player/Head/Camera")

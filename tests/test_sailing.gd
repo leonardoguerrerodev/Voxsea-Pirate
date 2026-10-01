@@ -3,10 +3,6 @@ extends Node
 ## piloto automático mantiene el rumbo, como haría el jugador.
 ## ../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- test_sailing
 
-const PLANK: int = 2
-const SAIL: int = 8
-const HELM: int = 9
-const ANCHOR: int = 10
 const RUN_FRAMES: int = 60 * 40
 
 var _failed: bool = false
@@ -21,29 +17,34 @@ func _expect(ok: bool, what: String) -> void:
 		_failed = true
 
 
-## Caja con cubierta, de tablón; vela grande a proa y timón a popa.
-func _hull(size: Vector3i, sail: bool) -> ShipData:
-	var data: ShipData = ShipData.new(size + Vector3i(0, 1, 0))
-	var command: ShipEditCommand = ShipEditCommand.new()
-	for z: int in size.z:
-		for y: int in size.y:
-			for x: int in size.x:
-				if x == 0 or x == size.x - 1 or z == 0 or z == size.z - 1 or y == 0 or y == size.y - 1:
-					command.add(Vector3i(x, y, z), PLANK)
+## Caja con cubierta, de tablón; vela grande a proa y timón a popa (piezas sobre
+## la cubierta, en voxels de 0,5 m como el casco).
+func _hull(size: Vector3i, sail: bool) -> ShipBody:
+	var ship: ShipBody = ShipBody.new()
+	ship.profile = HullProfile.box(size, 600.0)
+	var deck: float = size.y * 0.5
+	var middle: float = (size.x / 2 + 0.5) * 0.5
 	if sail:
-		command.add(Vector3i(size.x / 2, size.y, size.z / 3), SAIL)
-	command.add(Vector3i(size.x / 2, size.y, size.z - 3), HELM)
-	command.add(Vector3i(size.x / 2, size.y, 2), ANCHOR)
-	ShipEditor.apply(data, command)
-	return data
+		_part(ship, ShipPart.Kind.SAIL, Vector3(middle, deck, (size.z / 3 + 0.5) * 0.5), 200.0)
+	_part(ship, ShipPart.Kind.HELM, Vector3(middle, deck, (size.z - 3 + 0.5) * 0.5), 0.0)
+	_part(ship, ShipPart.Kind.ANCHOR, Vector3(middle, deck, 2.5 * 0.5), 0.0)
+	return ship
+
+
+func _part(ship: ShipBody, kind: ShipPart.Kind, at: Vector3, mass: float) -> void:
+	var part: ShipPart = ShipPart.new()
+	part.kind = kind
+	part.position = at
+	part.mass = mass
+	if kind == ShipPart.Kind.SAIL:
+		part.sail_area = 100.0
+		part.mast_height = 12.0
+	ship.add_child(part)
 
 
 ## yaw: rumbo (rad). La proa es -z local: yaw 0 = proa hacia -z (viento de costado),
 ## yaw 90° = proa hacia -x (contra el viento).
-func _spawn(key: String, data: ShipData, at: Vector3, yaw: float, speed: float = 0.0) -> void:
-	var ship: ShipBody = ShipBody.new()
-	ship.data = data
-	ship.catalog = load("res://ship/data/materials.tres")
+func _spawn(key: String, ship: ShipBody, at: Vector3, yaw: float, speed: float = 0.0) -> void:
 	ship.waves = WaveSettings.new()
 	ship.transform = Transform3D(Basis(Vector3.UP, yaw), at)
 	var rig: ShipRig = ShipRig.new()

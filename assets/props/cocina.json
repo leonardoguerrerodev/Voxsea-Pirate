@@ -1,0 +1,19 @@
+{
+  "source": "../../models/medieval kitchenware 3d model.glb",
+  "out": ".",
+  "props": [
+    {"piece": 0, "name": "estufa", "size": 1.4, "material": "iron", "tris": 6000},
+    {"piece": 1, "name": "estufa_puerta", "size": 0.35, "material": "iron"},
+    {"piece": 2, "name": "caldero", "size": 0.7, "material": "iron"},
+    {"piece": 3, "name": "caldero_tapa", "size": 0.6, "material": "iron"},
+    {"piece": 4, "name": "tabla_picar", "size": 0.45, "material": "wood_deck"},
+    {"piece": 5, "name": "cuchilla", "size": 0.3, "material": "iron"},
+    {"piece": 6, "name": "colgador_ollas", "size": 0.9, "material": "wood_dark"},
+    {"piece": 7, "name": "sarten", "size": 0.5, "material": "copper"},
+    {"piece": 8, "name": "olla", "size": 0.4, "material": "copper"},
+    {"piece": 9, "name": "barril_agua", "size": 1.0, "material": "wood_warm"},
+    {"piece": 10, "name": "llave_barril", "size": 0.2, "material": "brass"},
+    {"piece": 11, "name": "plato", "size": 0.3, "material": "wood_deck"},
+    {"piece": 12, "name": "pescado_cocido", "size": 0.4, "material": "parchment", "tint": [1.0, 0.7, 0.4]}
+  ]
+}
