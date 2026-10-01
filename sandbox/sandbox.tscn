@@ -1,0 +1,92 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://sandbox/orbit_camera.gd" id="1_cam"]
+[ext_resource type="Script" path="res://ocean/ocean_surface.gd" id="2_ocean"]
+[ext_resource type="Shader" path="res://ocean/ocean.gdshader" id="3_shader"]
+[ext_resource type="Resource" path="res://ocean/default_waves.tres" id="4_waves"]
+[ext_resource type="Script" path="res://ocean/buoyant_body.gd" id="5_buoy"]
+[ext_resource type="Script" path="res://sandbox/test_ship.gd" id="6_ship"]
+[ext_resource type="Resource" path="res://ship/data/materials.tres" id="7_mats"]
+
+[sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
+ground_bottom_color = Color(0.42, 0.48, 0.54, 1)
+ground_horizon_color = Color(0.6, 0.65, 0.7, 1)
+
+[sub_resource type="Sky" id="sky"]
+sky_material = SubResource("sky_mat")
+
+[sub_resource type="Environment" id="env"]
+background_mode = 2
+sky = SubResource("sky")
+fog_enabled = true
+fog_light_color = Color(0.6, 0.65, 0.7, 1)
+fog_density = 0.004
+fog_sky_affect = 0.0
+
+[sub_resource type="PlaneMesh" id="sea_mesh"]
+size = Vector2(512, 512)
+subdivide_width = 511
+subdivide_depth = 511
+
+[sub_resource type="ShaderMaterial" id="sea_mat"]
+shader = ExtResource("3_shader")
+
+[sub_resource type="PlaneMesh" id="horizon_mesh"]
+size = Vector2(8000, 8000)
+
+[sub_resource type="ShaderMaterial" id="horizon_mat"]
+render_priority = -1
+shader = ExtResource("3_shader")
+shader_parameter/inner_radius = 250.0
+
+[sub_resource type="BoxShape3D" id="box_shape"]
+
+[sub_resource type="StandardMaterial3D" id="box_mat"]
+albedo_color = Color(0.55, 0.35, 0.18, 1)
+
+[sub_resource type="BoxMesh" id="box_mesh"]
+material = SubResource("box_mat")
+
+[node name="Sandbox" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.643, -0.766, 0, 0.766, 0.643, 0, 0, 0)
+shadow_enabled = true
+
+[node name="OrbitCamera" type="Camera3D" parent="."]
+script = ExtResource("1_cam")
+
+[node name="Ocean" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+extra_cull_margin = 16.0
+mesh = SubResource("sea_mesh")
+material_override = SubResource("sea_mat")
+script = ExtResource("2_ocean")
+settings = ExtResource("4_waves")
+
+[node name="Horizon" type="MeshInstance3D" parent="Ocean"]
+cast_shadow = 0
+mesh = SubResource("horizon_mesh")
+material_override = SubResource("horizon_mat")
+
+[node name="FloatingCube" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+mass = 500.0
+can_sleep = false
+script = ExtResource("5_buoy")
+waves = ExtResource("4_waves")
+points = PackedVector3Array(-0.25, -0.25, -0.25, 0.25, -0.25, -0.25, -0.25, -0.25, 0.25, 0.25, -0.25, 0.25, -0.25, 0.25, -0.25, 0.25, 0.25, -0.25, -0.25, 0.25, 0.25, 0.25, 0.25, 0.25)
+
+[node name="Shape" type="CollisionShape3D" parent="FloatingCube"]
+shape = SubResource("box_shape")
+
+[node name="Mesh" type="MeshInstance3D" parent="FloatingCube"]
+mesh = SubResource("box_mesh")
+
+[node name="TestShip" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, -2, -12)
+script = ExtResource("6_ship")
+catalog = ExtResource("7_mats")

@@ -2,7 +2,7 @@
 
 ## Pitch
 
-Voxsea Pirate es un juego 3D de supervivencia naval con humor. Construyes tu barco con voxels, lo sacas a un mar con olas reales y vuelves con materiales para hacerlo más grande, más fuerte o más rápido. Si lo construyes mal, se da vuelta en el puerto.
+Voxsea Pirate es un juego 3D de supervivencia naval con humor, en primera persona. Construyes tu barco con voxels, lo sacas a un mar con olas reales y vuelves con materiales para hacerlo más grande, más fuerte o más rápido. Si lo construyes mal, se da vuelta en el puerto.
 
 ## Ciclo de juego
 
