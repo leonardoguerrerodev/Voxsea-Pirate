@@ -4,15 +4,17 @@ extends CanvasLayer
 
 const HELP: String = """WASD moverse · Espacio saltar · Shift correr · C agacharse
 E tomar el timón (A/D timón · W/S velas · R ancla · E soltar)
-B construir (dique seco) · clic izq. poner · clic der. quitar · T herramienta · M espejo
-1-6 material · 7 vela chica · 8 vela grande · 9 timón · 0 ancla · Ctrl+Z / Ctrl+Y
-Q brújula · F3 depuración del barco · F1 ocultar esta ayuda · Esc pausa"""
+Tab inventario (clic der. colocar) · E abrir · F recoger · rueda girar · Q brújula · F3 centro de gravedad · F1 ocultar esta ayuda · Esc pausa"""
 
 ## A quién se le muestran las coordenadas.
 @export var player: Player
 ## Para el menú dev.
 @export var ship: ShipBody
 @export var sky: Sky3D
+## Su material lo ajusta el menú dev.
+@export var ocean: OceanSurface
+## Recibe los objetos que se eligen para colocar desde el inventario.
+@export var placer: DecorPlacer
 
 var show_fps: bool = false
 
@@ -69,9 +71,17 @@ func _ready() -> void:
 	_dev.set("ship", ship)
 	_dev.set("player", player)
 	_dev.set("sky", sky)
+	_dev.set("ocean", ocean)
 	_dev.set("ui", self)
 	_dev.visible = false
 	add_child(_dev)
+
+	# Hijo de esta UI: recibe la entrada antes, así Esc lo cierra sin pausar.
+	var inventory: InventoryUI = InventoryUI.new()
+	inventory.player = player
+	add_child(inventory)
+	if placer:
+		inventory.place_requested.connect(placer.begin)
 
 
 func _process(_delta: float) -> void:

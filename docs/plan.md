@@ -1,5 +1,7 @@
 # Plan de ejecución
 
+> **2026-10-01:** las fases 2–4 (barco voxel construible) se reemplazaron por cascos fijos modelados; la fase 6 pasa a ser combate al estilo Sea of Thieves (agujeros, nivel de agua, balde, tablones). Ver `docs/decisiones.md` y `docs/plan_sin_voxels.md`.
+
 Cada fase deja algo que se puede probar. Una fase está terminada cuando cumple su criterio, no cuando el código está escrito. Las reglas técnicas están en `CLAUDE.md`.
 
 ## Fase 0 — Proyecto base

@@ -2,8 +2,6 @@ extends Node
 ## Chequeo de la fase 3: un personaje parado en la cubierta viaja con el barco.
 ## ../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- test_deck
 
-const PLANK: int = 2
-
 var _ship: ShipBody
 var _player: CharacterBody3D
 var _start_local: Vector3
@@ -11,19 +9,19 @@ var _frame: int = 0
 
 
 func _ready() -> void:
-	var data: ShipData = ShipData.new(Vector3i(10, 8, 16))
-	var command: ShipEditCommand = ShipEditCommand.new()
-	for z: int in 16:
-		for y: int in 8:
-			for x: int in 10:
-				if x == 0 or x == 9 or z == 0 or z == 15 or y == 0 or y == 7:
-					command.add(Vector3i(x, y, z), PLANK)
-	ShipEditor.apply(data, command)
 	_ship = ShipBody.new()
-	_ship.data = data
-	_ship.catalog = load("res://ship/data/materials.tres")
+	_ship.profile = HullProfile.box(Vector3i(10, 8, 16), 600.0)
 	_ship.waves = WaveSettings.new()
-	_ship.add_child(ShipDeck.new())
+	# Casco visible de 5 × 4 × 8 m (cubierta a 4 m): de ahí sale la colisión.
+	var model: MeshInstance3D = MeshInstance3D.new()
+	var box: BoxMesh = BoxMesh.new()
+	box.size = Vector3(5, 4, 8)
+	model.mesh = box
+	model.position = Vector3(2.5, 2, 4)
+	_ship.add_child(model)
+	var collision: HullCollision = HullCollision.new()
+	collision.model = model
+	_ship.add_child(collision)
 	add_child(_ship)
 
 	_player = CharacterBody3D.new()
@@ -31,7 +29,7 @@ func _ready() -> void:
 	capsule.shape = CapsuleShape3D.new()
 	capsule.position.y = 1.0
 	_player.add_child(capsule)
-	# Hijo del barco: lo lleva la transformación (ver ShipDeck). Sin velocidad de
+	# Hijo del barco: lo lleva la transformación (ver HullCollision). Sin velocidad de
 	# plataforma, o el movimiento del barco se le suma dos veces.
 	_player.platform_floor_layers = 0
 	_ship.add_child(_player)

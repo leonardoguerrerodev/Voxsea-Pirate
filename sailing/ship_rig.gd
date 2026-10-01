@@ -36,7 +36,7 @@ var sail_amount: float = 0.0
 ## -1 = a babor (izquierda), 1 = a estribor (derecha).
 var rudder: float = 0.0
 var anchored: bool = false
-## Ángulo de cada vela respecto de la crujía (rad), por celda. Lo lee la presentación.
+## Ángulo de cada vela respecto de la crujía (rad), por pieza. Lo lee la presentación.
 var sail_trims: Dictionary = {}
 
 @onready var ship: ShipBody = get_parent() as ShipBody
@@ -53,10 +53,10 @@ func _physics_process(_delta: float) -> void:
 	var surge: float = velocity.dot(forward)
 	var sway: float = velocity.dot(side)
 	var yaw_rate: float = ship.angular_velocity.dot(up)
-	var hydro: ShipHydrostatics = ship.hydro
+	var hull: HullProfile = ship.profile
 	# Áreas mojadas aproximadas: volumen sumergido repartido en el largo o en el ancho.
-	var front_area: float = ship.submerged_volume / hydro.length
-	var side_area: float = ship.submerged_volume / hydro.beam
+	var front_area: float = ship.submerged_volume / hull.length
+	var side_area: float = ship.submerged_volume / hull.beam
 	var q: float = 0.5 * WATER_DENSITY
 
 	# Casco: poca resistencia de frente, mucha de costado.
@@ -64,27 +64,26 @@ func _physics_process(_delta: float) -> void:
 	ship.apply_central_force(-q * (drag_forward * front_area * surge * absf(surge) * forward + lateral * side))
 	# Girar empuja agua de costado en toda la eslora: frena el rumbo, más en barcos
 	# largos (∫ x·(ωx)² a lo largo del casco ∝ L³).
-	var yaw_drag: float = q * DRAG_SIDE * side_area * pow(hydro.length, 3.0) / 32.0 * yaw_rate * absf(yaw_rate)
+	var yaw_drag: float = q * DRAG_SIDE * side_area * pow(hull.length, 3.0) / 32.0 * yaw_rate * absf(yaw_rate)
 	# Timón en popa: sin avance no hace nada. Positivo = gira a estribor (rumbo horario).
-	var rudder_torque: float = -q * RUDDER_AREA * RUDDER_LIFT * rudder * surge * absf(surge) * hydro.length * 0.5
+	var rudder_torque: float = -q * RUDDER_AREA * RUDDER_LIFT * rudder * surge * absf(surge) * hull.length * 0.5
 	ship.apply_torque(up * (rudder_torque - yaw_drag))
 
 	_apply_sails(forward, com)
 
-	if anchored and hydro.parts.has(VoxelMaterial.Part.ANCHOR):
+	if anchored and not ship.parts(ShipPart.Kind.ANCHOR).is_empty():
 		ship.apply_central_force(-velocity * ship.mass * anchor_drag)
 
 
 func _apply_sails(forward: Vector3, com: Vector3) -> void:
-	var cells: Array = ship.hydro.parts.get(VoxelMaterial.Part.SAIL, [])
-	if cells.is_empty() or sail_amount <= 0.0:
+	var sails: Array[ShipPart] = ship.parts(ShipPart.Kind.SAIL)
+	if sails.is_empty() or sail_amount <= 0.0:
 		return
 	var wind: Vector3 = Wind.velocity_at(Game.ocean_time)
 	var xform: Transform3D = ship.global_transform
-	for cell: Vector3i in cells:
-		var material: VoxelMaterial = ship.catalog.get_material(ship.data.get_voxel(cell))
+	for sail: ShipPart in sails:
 		# La fuerza actúa a media altura del mástil: con mucha vela, el barco escora.
-		var local: Vector3 = (Vector3(cell) + Vector3(0.5, 1.0, 0.5)) * ShipData.VOXEL_SIZE + Vector3.UP * material.mast_height * 0.5
+		var local: Vector3 = sail.position + Vector3.UP * sail.mast_height * 0.5
 		var point: Vector3 = xform * local
 		var moving: Vector3 = ship.linear_velocity + ship.angular_velocity.cross(point - com)
 		var apparent: Vector3 = wind - Vector3(moving.x, 0.0, moving.z)
@@ -92,12 +91,12 @@ func _apply_sails(forward: Vector3, com: Vector3) -> void:
 		var best_trim: float = 0.0
 		var best_drive: float = -INF
 		for trim: float in trims():
-			var force: Vector3 = sail_force(apparent, forward.rotated(Vector3.UP, trim), material.sail_area * sail_amount) * sail_scale
+			var force: Vector3 = sail_force(apparent, forward.rotated(Vector3.UP, trim), sail.sail_area * sail_amount) * sail_scale
 			if force.dot(forward) > best_drive:
 				best_drive = force.dot(forward)
 				best_force = force
 				best_trim = trim
-		sail_trims[cell] = best_trim
+		sail_trims[sail] = best_trim
 		ship.apply_force(best_force, point - ship.global_position)
 
 

@@ -6,6 +6,7 @@ extends PanelContainer
 var ship: ShipBody
 var player: Player
 var sky: Sky3D
+var ocean: OceanSurface
 var ui: Node
 
 var _rows: Array[Dictionary] = []
@@ -74,6 +75,16 @@ func _build() -> void:
 	_slider(Weather, "wind_multiplier", "Multiplicador (× clima)", 0.0, 3.0, 0.05)
 	_section("Mar")
 	_slider(Weather, "wave_multiplier", "Altura de olas (× clima)", 0.0, 3.0, 0.05)
+	var sea: ShaderMaterial = ocean.material_override as ShaderMaterial
+	_slider(sea, "shader_parameter/detail_strength", "Ondas finas", 0.0, 2.0, 0.05)
+	_slider(sea, "shader_parameter/detail_speed", "Velocidad de ondas finas", 0.0, 2.0, 0.05)
+	_slider(sea, "shader_parameter/detail_fade", "Alcance de ondas finas (m)", 10.0, 200.0, 5.0)
+	_slider(sea, "shader_parameter/sun_roughness", "Rugosidad del brillo del sol", 0.02, 1.0, 0.01)
+	_slider(sea, "shader_parameter/scattering", "Luz en las crestas", 0.0, 3.0, 0.05)
+	_slider(sea, "shader_parameter/refraction", "Refracción", 0.0, 0.2, 0.005)
+	_slider(sea, "shader_parameter/clarity", "Claridad del agua", 0.25, 6.0, 0.05)
+	_slider(sea, "shader_parameter/diffuse_amount", "Difusa del agua", 0.0, 1.0, 0.01)
+	_slider(sea, "shader_parameter/jacobian_foam", "Espuma de crestas", 0.0, 1.0, 0.01)
 	_section("Cielo (Sky3D)")
 	_check(sky, "clouds_enabled", "Nubes (pesan en el Mac)")
 	_check(sky, "fog_enabled", "Niebla atmosférica")
@@ -86,15 +97,35 @@ func _build() -> void:
 	_slider(rig, "anchor_drag", "Freno del ancla", 0.0, 20.0, 0.5)
 	_slider(ship, "roll_damping", "Amortiguación de escora", 0.0, 10.0, 0.1)
 	_slider(ship, "water_drag", "Arrastre vertical", 0.0, 10.0, 0.1)
-	_slider(ship, "flood_rate", "Inundación (voxels/s por abertura)", 0.0, 50.0, 0.5)
 	_section("Jugador")
 	_slider(player, "base_speed", "Velocidad al caminar", 0.5, 15.0, 0.5, apply_speed)
 	_slider(player, "sprint_speed", "Velocidad al correr", 0.5, 25.0, 0.5, apply_speed)
 	_slider(player, "jump_velocity", "Salto", 1.0, 15.0, 0.5)
 	_slider(player, "mouse_sensitivity", "Sensibilidad del mouse", 0.01, 0.5, 0.01)
+	_button("Dar objetos de prueba", _give_test_items)
 	_section("Gráficos")
 	_slider(get_viewport(), "scaling_3d_scale", "Escala de render 3D", 0.25, 1.0, 0.05)
+	var env: Environment = sky.environment
+	_option(env, "tonemap_mode", "Tonemapping", PackedStringArray(["Lineal", "Reinhard", "Filmic", "ACES", "AgX"]))
+	_slider(env, "tonemap_exposure", "Exposición", 0.25, 4.0, 0.05)
+	_check(env, "adjustment_enabled", "Ajustes de color")
+	_slider(env, "adjustment_saturation", "Saturación", 0.0, 2.0, 0.05)
+	_slider(env, "adjustment_contrast", "Contraste", 0.0, 2.0, 0.05)
+	_check(env, "ssr_enabled", "Reflejos SSR")
+	_check(env, "ssao_enabled", "Oclusión SSAO")
+	_check(env, "ssil_enabled", "Luz indirecta SSIL")
+	_check(env, "sdfgi_enabled", "Iluminación global SDFGI")
+	_check(env, "glow_enabled", "Brillo (glow)")
+	_check(env, "volumetric_fog_enabled", "Niebla volumétrica")
 	_check(ui, "show_fps", "Mostrar FPS")
+
+
+## Uno de cada objeto de items/data (cinco de lo que se apila).
+func _give_test_items() -> void:
+	for file: String in DirAccess.get_files_at("res://items/data"):
+		if file.ends_with(".tres"):
+			var item: ItemData = load("res://items/data".path_join(file))
+			player.inventory.add(item, 5 if item.max_stack > 1 else 1)
 
 
 func _section(text: String) -> void:

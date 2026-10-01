@@ -57,9 +57,8 @@ func _set_helm(value: bool) -> void:
 
 
 func _near_helm() -> bool:
-	for cell: Vector3i in ship.hydro.parts.get(VoxelMaterial.Part.HELM, []):
-		var at: Vector3 = ship.global_transform * ((Vector3(cell) + Vector3(0.5, 1.0, 0.5)) * ShipData.VOXEL_SIZE)
-		if at.distance_to(player.global_position) < REACH:
+	for helm: ShipPart in ship.parts(ShipPart.Kind.HELM):
+		if helm.global_position.distance_to(player.global_position) < REACH:
 			return true
 	return false
 

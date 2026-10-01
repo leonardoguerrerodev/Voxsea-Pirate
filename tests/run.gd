@@ -1,7 +1,7 @@
 extends Node
 ## Corre un test dentro de una escena, con los autoloads ya cargados (un script de
 ## -s compila antes que ellos y no conoce Game). Uso:
-## ../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- test_hydro
+## ../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- test_hull
 ## Cada test es un Node que termina con get_tree().quit(código).
 
 

@@ -1,0 +1,17 @@
+{
+  "source": "../../models/wooden treasure props 3d model.glb",
+  "out": ".",
+  "props": [
+    {"piece": 0, "name": "cofre_base", "size": 0.9, "material": "wood_warm"},
+    {"piece": 2, "name": "cofre_tapa", "size": 0.9, "material": "wood_warm"},
+    {"piece": 3, "name": "hamaca_poste", "size": 1.4, "material": "wood_dark"},
+    {"piece": 5, "name": "mapa_enrollado", "size": 0.5, "material": "parchment"},
+    {"piece": 6, "name": "mesa_mapas", "size": 1.4, "material": "wood_warm", "tris": 6000},
+    {"piece": 7, "name": "repisa", "size": 1.0, "material": "wood_warm"},
+    {"piece": 8, "name": "botella", "size": 0.3, "material": "canvas", "tint": [0.45, 0.8, 0.7]},
+    {"piece": 9, "name": "jarron", "size": 0.5, "material": "terracotta"},
+    {"piece": 10, "name": "piso", "size": 0.5, "material": "wood_dark"},
+    {"piece": 11, "name": "campana", "size": 0.35, "material": "brass"},
+    {"piece": 12, "name": "campana_soporte", "size": 0.4, "material": "iron"}
+  ]
+}

@@ -12,6 +12,9 @@ const STEP_AHEAD: float = 0.15
 ## Bajo esta altura de mundo se considera caído al agua.
 const FALL_LIMIT: float = -12.0
 
+## Lo que lleva encima.
+var inventory: Inventory = Inventory.new(24)
+
 var _spawn: Transform3D
 
 

@@ -8,7 +8,7 @@ Leonardo (Obsi). Desarrollador solo, autodidacta, estudiante de Ingeniería en I
 
 ## 📍 Estado actual y cómo seguir (2026-10-01)
 
-Hecho: fases 0 a 5 (océano Gerstner, barco voxel con Voxel Tools, flotabilidad e inundación, modo construcción en primera persona, navegación a vela) más coordenadas de mapa, brújula, ciclo día/noche (Sky3D), clima conectado a viento y olas, y menú dev. 10 tests en verde. Todo desarrollado en el MacPro (Ivy Bridge, renders a 480×270).
+Hecho: océano Gerstner, barco de casco fijo modelado (balandra de 20 m) que flota, navega y se camina, navegación a vela, coordenadas de mapa, brújula, ciclo día/noche (Sky3D), clima conectado a viento y olas, y menú dev (con interruptores gráficos: tonemapping/AgX, SSR, SSAO, SSIL, SDFGI, glow, niebla volumétrica), mar con ondas finas, destellos del sol, luz en las crestas y claridad ajustable, 27 props importados con íconos (cofre, caldero, estufa y barril armados con su parte móvil; 3 cañones), inventario (Tab) y decoración: colocar objetos del inventario en el barco (con masa), abrirlos (E) y recogerlos (F). 10 tests en verde. Las fases 2–4 (barco voxel construible) se reemplazaron el 2026-10-01: ver `docs/decisiones.md`; el código voxel queda en el commit `fac9d9d`.
 
 **Retomar en otro equipo (p. ej. el Nobara, 2560×1440):**
 1. `git lfs install` y clonar `leonardoguerrerodev/Voxsea-Pirate` dentro de `~/Documentos/!GitHub/!Obsedium/`.
@@ -18,29 +18,32 @@ Hecho: fases 0 a 5 (océano Gerstner, barco voxel con Voxel Tools, flotabilidad 
 5. Correr los tests (ver "Tests" abajo): los 10 deben dar OK.
 6. Jugar y medir: `../Godot_v4.7.2-stable_linux.x86_64 --path . --print-fps`.
 
-**Casco modelado (2026-10-01, Nobara):** se decidió pasar a cascos fijos modelados (estilo Sea of Thieves) con física voxel invisible: `tools/hull_to_grid.py` (Blender) toma un `.glb` (Tripo), lo orienta, escala, simetriza, alinea la cubierta con un borde de voxel, lo pinta por pieza (`<casco>.materials.json`, texturas en `assets/textures/`) y escribe la malla + la grilla `.grid`. `HullGrid.load_grid()` la carga en `ShipData`. El sandbox usa la balandra (`sandbox/sloop_ship.gd`, 20 m); `test_hull` cubre flotar, escorar e inundar. El interior (mamparos, cuartos, props) lo construye el jugador. Los `.glb` crudos de Tripo viven en `models/` (fuera de git).
+**Cascos (2026-10-01):** fijos y modelados, estilo Sea of Thieves. `tools/hull_to_grid.py` (Blender) toma un `.glb` (Tripo), lo orienta (proa a -z), escala, simetriza, alinea la cubierta con un borde de 0,5 m, lo pinta por pieza (`<casco>.materials.json`, texturas en `assets/textures/`) y escribe la malla + la ocupación `.grid` (1 = casco, 2 = aire interior). `HullProfile` calcula de ahí, una vez, masa, inercia y celdas de flotación; en juego no hay grilla. La colisión sale de la malla (`HullCollision`) y las piezas son nodos `ShipPart`. Los `.glb` crudos de Tripo viven en `models/` (fuera de git). Plan ejecutado: `docs/plan_sin_voxels.md`.
 
 **Pendientes inmediatos:**
-- Balandra: abrir la escotilla en la grilla y una escalera a la bodega; mostrar los voxels que construye el jugador (la malla voxel del casco está oculta); mástiles con modelo (set de Tripo pintado por pieza); texturas de Canva en resolución completa (hoy miniaturas de 200 px).
-- Medir FPS en el Nobara a 1440p y 1080p (en el Mac: 17 fps a 480×270; Sky3D y el mar son lo más caro). Si falta, menú dev → Gráficos.
-- Pruebas a mano que ningún test cubre: construir un casco de bote en menos de 5 min (fase 3), sensación de navegación (`ShipRig.sail_scale`), brillo de la noche, editar `default_waves.tres` en el inspector remoto (fase 1).
+- Medir FPS en el Nobara a 1440p con cada interruptor de menú dev → Gráficos (base, SSR, SSAO, SSIL, SDFGI, AgX). El mar es transparente: SSR probablemente no lo refleja; evaluar reflejos propios del mar después.
+- Balandra: abrir la escotilla y una escalera a la bodega; mástiles con modelo (verga, mástiles y cofa de la primera hoja de utilería).
+- Props: un material por prop (Tripo los entregó en una sola malla); los de varios materiales (cofre con fierro, botella de vidrio) piden reexportar "por piezas" o pintar a mano. Falta la tela de la hamaca (plano curvo con lona, como la vela).
+- Inventario: falta de dónde salen los objetos (pesca, cocina, botín) y guardar la partida (lo colocado y el inventario se pierden al salir).
+- Cañones: hoy son decoración (tubo y cureña fundidos en una malla). Para disparar y apuntar hace falta el tubo aparte: pasar la hoja de piezas de cañones por Tripo "por piezas".
+- Pruebas a mano que ningún test cubre: sensación de navegación (`ShipRig.sail_scale`), brillo de la noche, editar `default_waves.tres` en el inspector remoto (fase 1).
 - Fase 5: falta la estela (espuma persistente).
-- Siguiente fase del plan: **6 — Cañones y daño**.
+- Siguiente: **combate** al estilo Sea of Thieves (cañones, agujeros en el punto de impacto, nivel de agua por barco, balde y tablones); después pesca, cocina y decoración.
 - Riesgos abiertos: tabla "Riesgos y problemas conocidos" al final.
 
 ## 🎯 Objetivo
 
-Juego 3D de supervivencia naval con humor, en primera persona. Construcción voxel del barco al estilo Enshrouded, mar realista, pesca y combate a cañonazos contra monstruos marinos. Un jugador primero; cooperativo online después, sin reescribir la base.
+Juego 3D de supervivencia naval con humor, en primera persona. Barcos de casco fijo al estilo Sea of Thieves que se decoran y equipan por dentro, mar realista, pesca, cocina y combate a cañonazos contra monstruos marinos. Un jugador primero; cooperativo online después, sin reescribir la base.
 
 ## 📦 Stack
 
 | Componente | Elección |
 |---|---|
 | Motor | Godot 4.7.2 estable, renderer Forward+ (ejecutable en `../Godot_v4.7.2-stable_linux.x86_64`) |
-| Lenguaje | GDScript con tipado estático. C++ (GDExtension) solo si el mesher no rinde |
+| Lenguaje | GDScript con tipado estático. C++ (GDExtension) solo si algo medido no rinde |
 | Física | Jolt Physics (integrado en Godot) |
 | Océano | Olas de Gerstner en shader + misma fórmula en CPU. FFT más adelante |
-| Voxels | Datos propios (`ShipData`); mallado con `VoxelMesherCubes` (greedy) de Voxel Tools de Zylann, GDExtension v1.7x en `addons/zylann.voxel/` (solo binarios Linux x86_64; otras plataformas se agregan desde el zip del release al exportar). Chunks de 16³, voxel de 0,5 m |
+| Casco | Modelo `.glb` + perfil de flotación precalculado (`HullProfile`, desde la ocupación en voxels de 0,5 m que deja `tools/hull_to_grid.py`). Colisión cóncava desde la malla (`HullCollision`) |
 | Jugador | Primera persona: Quality First Person Controller (Colormatic, MIT), adaptado a cubierta móvil |
 | Cielo | Sky3D v2.1.0 (TokisanGames, MIT; `addons/sky_3d`): sol, luna, estrellas, nubes, niebla. Su reloj va apagado: lo maneja `Game.hour` vía `WeatherView` |
 | Clima | Propio: autoload `Weather` (estados que escalan viento y olas) + `WeatherView` (Sky3D y lluvia) |
@@ -48,26 +51,25 @@ Juego 3D de supervivencia naval con humor, en primera persona. Construcción vox
 
 | Convención | Valor |
 |---|---|
-| Identificadores de código | Inglés (`ShipData`, `get_wave_height`) |
+| Identificadores de código | Inglés (`HullProfile`, `get_wave_height`) |
 | Comentarios y docs | Español |
 | Unidades de física | Metros, kilogramos, segundos |
 | Coordenadas de mapa | `MapCoords` (world/): X = este (+x), Y = norte (-z), en metros; rumbo en grados desde el norte, horario. Toda conversión mundo ↔ mapa pasa por ahí. Ojo: `Vector2.UP` de Godot es (0, -1); el norte del mapa es `Vector2(0, 1)` |
 | Resolución | Base 1920×1080 con estiramiento `canvas_items`/`expand`: la UI se diseña en 1080p y escala; el 3D va a resolución nativa. Objetivos: 1080p y 1440p (Nobara) |
-| Tamaño de voxel | 0,5 m |
-| Grilla máxima del barco | 64 × 32 × 128 voxels (32 × 16 × 64 m) |
+| Ocupación del casco (offline) | Voxels de 0,5 m; celdas de flotación de 1 m |
 
 ## ⚠️ Reglas críticas
 
 1. **La altura del mar sale de una sola fuente.** `ocean/ocean.gdshader` y `WaveSettings.get_wave_height(x, z, t)` en CPU usan la misma fórmula y los mismos parámetros (`ocean/default_waves.tres`). Si divergen, el barco flota sobre una ola que no se ve.
-2. **Toda edición del barco es un comando.** Nada escribe en `ShipData` directo; todo pasa por `ShipEditCommand` → `ShipEditor.apply()`. En coop, esos comandos viajan por red.
-3. **La simulación no conoce la presentación.** `ShipData`, la flotabilidad y la IA no referencian nodos visuales. La presentación escucha señales.
-4. **La flotabilidad usa volumen desplazado.** Cuenta el casco más el aire interior seco. Aire interior = mirando abajo y a los 4 lados se choca con casco (así un bote sin cubierta tiene interior). El agua entra por las aberturas sumergidas de cada compartimento y sube hasta el nivel de afuera.
+2. **El casco no se edita en juego.** Su perfil físico (`HullProfile`) se calcula una vez al cargar; lo que cambia (piezas, carga, daño) son nodos `ShipPart` o estado del `ShipBody`, nunca la ocupación.
+3. **La simulación no conoce la presentación.** `HullProfile`, la flotabilidad y la IA no referencian nodos visuales. La presentación escucha señales.
+4. **La flotabilidad usa volumen desplazado.** Cuenta el casco más el aire interior (la bodega), por celdas de 1 m. El aire interior lo calcula `tools/hull_to_grid.py`: lo que el aire de afuera no alcanza sin cruzar casco.
 5. **El tiempo del mar es global.** CPU y GPU leen el mismo reloj (`Game.ocean_time`), nunca `Time` por separado.
 6. **Ningún binario sin LFS.** Revisa `.gitattributes` antes de agregar un tipo de archivo nuevo.
 7. **GDScript siempre tipado.** `var speed: float = 0.0`, funciones con tipo de retorno.
 10. **Todo ajuste en vivo va al menú dev** (`ui/dev_menu.gd`): una línea por ajuste. Las perillas de calibración son `@export var`, no `const`.
-9. **Las piezas funcionales son ids del catálogo** (`VoxelMaterial.part`): viajan en la misma grilla, así comandos, deshacer, espejo y guardado las cubren. Su base es un voxel; `ShipPartsView` dibuja lo demás.
-8. **Quien camina sobre un barco es hijo del barco** y no toma velocidad de plataforma (`platform_floor_layers = 0`). La colisión detallada va en un `ShipDeck` (cinemático, cóncavo) hijo del `ShipBody`, que no tiene formas propias. Probado en `test_deck`: con velocidad de plataforma el movimiento se suma dos veces o el jugador atraviesa la malla.
+9. **Las piezas son nodos `ShipPart` hijos del `ShipBody`** (vela, timón, ancla o carga con masa). Su posición es la base sobre la cubierta: se mide con un rayo contra la colisión del casco, nunca a ojo. Su masa suma al barco; `ShipPartsView` las dibuja.
+8. **Quien camina sobre un barco es hijo del barco** y no toma velocidad de plataforma (`platform_floor_layers = 0`). La colisión detallada va en un `HullCollision` (cinemático, cóncavo, desde la malla) hijo del `ShipBody`, que no tiene formas propias. Probado en `test_deck`: con velocidad de plataforma el movimiento se suma dos veces o el jugador atraviesa la malla.
 
 ## 🏗️ Estructura
 
@@ -76,22 +78,24 @@ res://
 ├── core/          # autoloads: Game (reloj del mar, hora del día), Events
 ├── sandbox/       # escena de pruebas (escena principal por ahora) y cámara orbital
 ├── ocean/         # WaveSettings (get_wave_height), shader Gerstner, OceanSurface, BuoyantBody
-├── addons/        # zylann.voxel (Voxel Tools, binarios por LFS) fpc (Quality First Person Controller, MIT) y sky_3d (Sky3D, MIT); código ajeno, sin tipado estricto
+├── addons/        # fpc (Quality First Person Controller, MIT) y sky_3d (Sky3D, MIT); código ajeno, sin tipado estricto
 ├── ship/
-│   ├── data/      # ShipData, ShipEditCommand, ShipEditor, VoxelMaterial, MaterialCatalog (materials.tres)
-│   ├── mesh/      # ChunkMesher (Voxel Tools), ShipMesh + hull.gdshader (bisel), WaterMask, VoxelTexture
-│   ├── physics/   # ShipHydrostatics (masa, compartimentos, inundación, celdas), ShipBody (RigidBody3D) y ShipDeck (colisión)
-│   └── debug/     # vista F3: aire seco por compartimento y centro de gravedad
-├── building/      # ShipBuilder (modo construcción) y BuildHistory (deshacer/rehacer)
-├── player/        # Player (subclase del FPC: camina hacia la cámara, sube escalones de 1 voxel, reaparece), player.tscn y Compass (brújula en la mano, Q)
-├── sailing/       # Wind (autoload, determinista), ShipRig (velas, timón, casco, ancla), HelmControl (E), ShipPartsView
-├── combat/        # cañones, proyectiles, daño a voxels
+│   ├── hull/      # HullProfile (masa, inercia, celdas de flotación desde la ocupación .grid)
+│   ├── mesh/      # WaterMask (el mar no se dibuja en la bodega)
+│   ├── physics/   # ShipBody (RigidBody3D) y HullCollision (colisión desde la malla)
+│   └── debug/     # vista F3: centro de gravedad
+├── player/        # Player (subclase del FPC: camina hacia la cámara, sube escalones de 0,5 m, reaparece), player.tscn y Compass (brújula en la mano, Q)
+├── sailing/       # Wind (autoload, determinista), ShipRig (velas, timón, casco, ancla), ShipPart, HelmControl (E), ShipPartsView, sail.gdshader
+├── combat/        # cañones, proyectiles, agujeros y fugas
 ├── creatures/     # Abisales y su IA
 ├── fishing/       # caña, red, arpón, tablas de peces
 ├── world/         # MapCoords, Weather (autoload), WeatherView; zonas, islas, ruinas, astillero
-├── tools/         # scripts de Blender (hull_to_grid.py: casco modelado → malla + grilla)
-├── ui/            # game_ui.gd (ayuda F1, coordenadas, pausa Esc) y dev_menu.gd (botón Dev en la pausa), temporales
-└── assets/        # modelos, texturas, audio (LFS)
+├── tools/         # hull_to_grid.py (casco → malla pintada + ocupación), props_import.py (hoja de Tripo → un .glb por prop, según assets/props/*.json) y render_icons.gd (íconos desde los props)
+├── items/         # ItemData (recurso, con masa y modelo), Inventory (casillas apilables) y data/*.tres (un objeto por archivo)
+├── props/         # OpenableProp: props de dos piezas armados (base + tapa/puerta con bisagra o que se levanta)
+├── decor/         # DecorPlacer (colocar, abrir con E, recoger con F) y DecorPiece (objeto colocado: ShipPart con masa y colisión)
+├── ui/            # game_ui.gd (ayuda F1, coordenadas, pausa Esc), dev_menu.gd (botón Dev en la pausa) e inventory_ui.gd (Tab)
+└── assets/        # ships/, props/ (+ specs .json), icons/, textures/ (paleta de 16 materiales de 512 px); todo por LFS
 tests/             # chequeos headless; corren dentro de tests/run.tscn
 ```
 
@@ -99,32 +103,26 @@ Las carpetas se crean cuando una fase las usa por primera vez (git no versiona c
 
 Verificación sin editor: `../Godot_v4.7.2-stable_linux.x86_64 --headless --path . --import` (importa y reporta errores de scripts). Los `*.gd.uid` que genera Godot se commitean.
 
-Tests: `../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- <test>` con `test_ocean`, `test_ship`, `test_hydro`, `test_build`, `test_deck`, `test_step`, `test_sailing`, `test_map`, `test_compass` y `test_weather` (salen con código ≠ 0 si fallan). No usar `-s`: esos scripts compilan antes que los autoloads y cualquier clase que use `Game` falla. `run.tscn` también acepta una ruta `res://` (scripts de captura).
+Tests: `../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- <test>` con `test_ocean`, `test_hull`, `test_deck`, `test_step`, `test_sailing`, `test_map`, `test_compass`, `test_weather`, `test_inventory` y `test_decor` (salen con código ≠ 0 si fallan). No usar `-s`: esos scripts compilan antes que los autoloads y cualquier clase que use `Game` falla. `run.tscn` también acepta una ruta `res://` (scripts de captura).
 
-Equipos: el **Nobara** (2560×1440) es donde se mide rendimiento real (`--print-fps`). El **MacPro** se trabaja solo en baja resolución: su `override.cfg` local (ignorado por git) fuerza la ventana a 480×270. Nunca cambiar `viewport_width/height` para achicar la ventana: es la resolución base del juego. F3 = depuración del barco.
+Equipos: el **Nobara** (2560×1440) es donde se mide rendimiento real (`--print-fps`). El **MacPro** se trabaja solo en baja resolución: su `override.cfg` local (ignorado por git) fuerza la ventana a 480×270. Nunca cambiar `viewport_width/height` para achicar la ventana: es la resolución base del juego. F3 = centro de gravedad del barco.
 
 Render (headless no compila shaders): correr `run.tscn -- res://<script>.gd` sin `--headless` y guardar `get_viewport().get_texture().get_image()`. **En el MacPro (Ivy Bridge) siempre a `--resolution 480x270`**; el Nobara aguanta resoluciones altas.
 
-Assets: se buscan en el Godot Asset Store (store.godotengine.org) y Leo elige antes de integrar. Descartado: Godot-MCP (exige Godot .NET y backend en la nube).
+Assets: se buscan en el Godot Asset Store (store.godotengine.org) y Leo elige antes de integrar. Modelos propios: hojas de imágenes (ChatGPT/Canva) → Tripo (exportar por piezas; hojas de ≤ 13 objetos, con más funde y omite) → `models/` (fuera de git, con `.gdignore`) → `tools/props_import.py`. Los modelos crudos no traen buena textura: se pintan con la paleta de `assets/textures/`. Descartado: Godot-MCP (exige Godot .NET y backend en la nube).
 
 ## 🔄 Flujo
 
 ```
-Input ──► ShipEditCommand ──► ShipEditor.apply()
-                                   │
-                                   ▼
-                              ShipData (simulación)
-                                   │ señal changed(chunk)
-                     ┌─────────────┼──────────────┐
-                     ▼             ▼              ▼
-               ChunkMesher    MassProperties   Compartments
-             (presentación)   (masa, CoG)     (aire estanco)
-                                   │              │
-                                   └──────┬───────┘
-                                          ▼
-WaveSettings ──► get_wave_height() ──► Buoyancy ──► RigidBody3D
+tools/hull_to_grid.py (Blender, offline) ──► <casco>.glb + <casco>.grid
+                                                 │           │
+                                     HullCollision (malla)   HullProfile (masa, celdas)
+                                                 │           │
+ShipPart (vela, timón, ancla, carga) ──────────► ShipBody ◄──┘
+                                                 ▲
+WaveSettings ──► get_wave_height() ──► flotación ┘   ShipRig (vela, timón, casco)
       │
-      └────────► shader del mar (GPU)
+      └────────► shader del mar (GPU) ◄── WaterMask (bodega)
 ```
 
 ## 🧩 Funcionalidades
@@ -132,13 +130,13 @@ WaveSettings ──► get_wave_height() ──► Buoyancy ──► RigidBody3
 | Sistema | Estado |
 |---|---|
 | Océano Gerstner | Hecho (fase 1): 8 ondas, falda de horizonte, flotabilidad por celdas |
-| Datos voxel y mesher | Hecho (fase 2): ShipData + comandos + VoxelMesherCubes; 0,19 ms por chunk lleno |
-| Modo construcción | Hecho (fase 3): primera persona, dique seco, voxel/línea/caja, espejo, deshacer, bisel |
-| Flotabilidad e inundación | Hecho (fase 4): celdas de 1 m, compartimentos con aberturas, inundación por vasos comunicantes, máscara de agua |
+| Casco fijo modelado | Hecho (reemplaza fases 2–4): balandra de 20 m pintada por pieza, flotación por celdas de 1 m, colisión desde la malla, máscara de agua en la bodega |
 | Navegación | Hecho (fase 5): viento, vela que se orienta sola, quilla, timón, ancla, tomar el timón con E |
-| Cañones y daño | Pendiente |
+| Cañones y daño (agujeros, nivel de agua, balde, tablones) | Pendiente |
 | Abisales | Pendiente |
 | Pesca | Pendiente |
+| Cocina | Pendiente |
+| Decoración (props con masa) | Pendiente |
 | Astillero, economía, guardado | Pendiente |
 | Zonas del mundo | Pendiente (día/noche y clima ya hechos) |
 | Cooperativo | Pendiente |
@@ -149,9 +147,7 @@ Detalle y criterios de "terminado" en `docs/plan.md`.
 
 - [x] Fase 0 — Proyecto base (falta confirmar a mano que la cámara orbita)
 - [x] Fase 1 — Océano y objeto flotante (falta probar a mano: editar `default_waves.tres` en el inspector remoto con el juego corriendo)
-- [x] Fase 2 — Datos voxel y mesher
-- [x] Fase 3 — Modo construcción (falta la prueba a mano: casco de bote en menos de 5 minutos)
-- [x] Fase 4 — Flotabilidad desde voxels
+- [x] Fases 2–4 — Barco voxel construible (hecho y reemplazado por casco fijo modelado, 2026-10-01; ver `docs/decisiones.md`)
 - [x] Fase 5 — Navegación (falta la estela visual)
 - [ ] Fase 6 — Cañones y daño
 - [ ] Fase 7 — Primer Abisal
@@ -166,22 +162,16 @@ Detalle y criterios de "terminado" en `docs/plan.md`.
 | Riesgo | Plan |
 |---|---|
 | Modelos de Tripo en plan gratis: licencia no comercial (sin confirmar en la página oficial). `assets/ships/sloop/sloop.glb` deriva de uno | Antes de vender: plan pago de Tripo o rehacer los modelos en Blender |
-| Hidrostática completa al editar en el mar: 45 ms con la balandra de 20 m (21×21×41, Nobara) | Hilo aparte (`WorkerThreadPool`) antes de la fase 6 si un cañonazo se nota |
-| Voxel Tools GDExtension "poco probada" (aviso del autor) | Solo usamos `VoxelBuffer` + `VoxelMesherCubes`, aislados en `ShipMesh`. Si falla, reemplazar ese archivo por un mesher propio; `ShipData` no depende del addon |
-| Remallado en el hilo principal | Medido: 0,15–0,19 ms chunk realista, 6,6 ms peor caso (MacPro). Pasar a `WorkerThreadPool` si una edición grande se nota |
-| Caminar sobre una cubierta que se mueve y cabecea | El controlador FPS hereda la velocidad del barco; se resuelve en fase 3/5 |
-| Recalcular la hidrostática: 175 ms al salir del dique seco (grilla 32×24×64, MacPro) | Una vez por botadura, aceptable. Incremental si se vuelve a editar en el mar (reparaciones, fase 6) |
-| La grilla del barco tiene tamaño fijo | Construir fuera de ella no hace nada; agrandar ShipData cuando un diseño lo pida |
 | Jugador siempre hijo del barco | Reparentar al bajar a tierra o al agua. Hoy, si cae al agua, reaparece en la cubierta (no hay nado) |
 | Flotabilidad: 2,3 ms por paso físico (casco de prueba, MacPro) | Columnas de 2 m para muestrear el mar; agrandarlas o bajar INVERT_STEPS si hay varios barcos |
 | Máscara de agua: un barco por océano | Arreglo de transformaciones + atlas 3D cuando haya más barcos (Saqueadores, fase 10) |
-| Fuerza de vela calibrada a ojo (`ShipRig.SAIL_SCALE` = 6, `DRAG_FORWARD`, `KEEL_LIFT`) | Los cascos de voxel pesan ~10× uno real. Ajustar jugando; `test_sailing` fija los mínimos |
-| Piezas dibujadas con primitivas (mástil, vela, rueda, ancla) | Modelos cuando haya arte |
+| Fuerza de vela calibrada a ojo (`ShipRig.sail_scale` = 6, `drag_forward`, `keel_lift`) | El casco pesa como madera maciza de 0,5 m (~10× uno real; balandra: 223 t). Ajustar jugando; `test_sailing` fija los mínimos |
+| Piezas dibujadas con primitivas (mástil, rueda, ancla; la vela ya tiene lona) | Modelos de las hojas de piezas separadas (Tripo) |
 | Sky3D en el MacPro: 24 → 17 fps (las nubes son lo más caro) | Menú dev: apagar nubes/niebla o bajar la escala de render. En el Nobara medir |
 | Lluvia: partículas con un "techo" de alturas que sigue a la cámara | Si se ve lluvia bajo techos chicos, subir la resolución del heightfield |
 | Reloj del mar a 60 Hz (física) | En pantallas de más Hz las olas saltan levemente; interpolar si se nota |
 | FFT requiere leer altura desde GPU | Gerstner hasta tener la física estable; FFT con readback asíncrono después |
-| Muchos puntos de flotabilidad en barcos grandes | Muestreo en celdas de 1 m (2×2×2 voxels) y límite de puntos por barco |
+| Muchas celdas de flotación en barcos grandes (balandra: 1023) | Celdas más grandes para barcos lejanos o enemigos |
 | Física autoritativa en coop | Host simula; clientes reciben estado e interpolan. Se diseña en fase 11 |
 
 ## 🔗 Referencias
@@ -192,4 +182,4 @@ Detalle y criterios de "terminado" en `docs/plan.md`.
 
 ---
 
-Última actualización: Sesión 3 (2026-10-01, Nobara) — Casco modelado (balandra de Tripo, 20 m) con física voxel, pintado por pieza, vela plana con lona, mástiles de 80/200 kg; 11 tests en verde. Siguiente: escotilla y bodega, voxels del jugador visibles, mástiles modelados; después Fase 6.
+Última actualización: Sesión 3 (2026-10-01, Nobara) — Sin voxels en juego (casco fijo con `HullProfile`, `HullCollision`, `ShipPart`); mar más translúcido con ondas finas, destellos y luz en las crestas; paleta de texturas y balandra repintada; 27 props (con piezas armadas y cañones) e íconos; inventario (Tab) y decoración; 10 tests en verde. Siguiente: medir FPS, escotilla y bodega, guardado; después combate (con cañones por piezas).

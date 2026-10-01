@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://items/item_data.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/icons/cuchilla.png" id="2_icon"]
+[ext_resource type="PackedScene" path="res://assets/props/cuchilla.glb" id="3_prop"]
+
+[resource]
+script = ExtResource("1_item")
+id = &"cuchilla"
+display_name = "Cuchilla"
+description = "Corta pescado, cuerda y discusiones."
+icon = ExtResource("2_icon")
+max_stack = 1
+prop = ExtResource("3_prop")
+mass = 0.8
