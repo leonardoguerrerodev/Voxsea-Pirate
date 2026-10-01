@@ -71,12 +71,19 @@ Cada fase deja algo que se puede probar. Una fase está terminada cuando cumple 
 
 ## Fase 5 — Navegación
 
-- [ ] Viento global con dirección y fuerza que cambian lento.
-- [ ] Pieza vela: fuerza según superficie y ángulo con el viento.
-- [ ] Pieza timón: torque proporcional a la velocidad.
-- [ ] Resistencia del casco según su forma frontal.
-- [ ] Ancla.
-- [ ] Caminar sobre la cubierta en movimiento en primera persona y tomar el timón.
+- [x] Viento global con dirección y fuerza que cambian lento (autoload `Wind`, determinista desde el reloj del mar).
+- [x] Piezas funcionales como ids del catálogo: vela chica (7), vela grande (8), timón (9), ancla (0).
+- [x] Pieza vela: sustentación y arrastre según el ángulo del viento aparente; se orienta sola (mín. 25° de la crujía → zona prohibida de ±27°).
+- [x] Pieza timón: torque proporcional a la velocidad al cuadrado; un barco quieto no gira.
+- [x] Resistencia del casco: poca de frente, mucha de costado, más sustentación de quilla (permite ceñir). El giro se frena ∝ eslora³.
+- [x] Ancla (R al timón).
+- [x] Tomar el timón en primera persona (E): A/D timón, W/S velas, R ancla.
+- [x] Test `tests/test_sailing.gd`.
+- [x] Coordenadas de mapa (`MapCoords`: X este, Y norte, rumbo) en pantalla y en el timón, base para el mapa de la fase 10.
+- [x] Ciclo día/noche con Sky3D, manejado por `Game.hour` (adelantado de la fase 10).
+- [x] Clima propio (`Weather`): despejado, nublado, lluvia y tormenta; escala viento y olas; ciclo automático determinista; lluvia con partículas (adelantado de la fase 10, `test_weather`).
+- [x] Menú dev en la pausa: tiempo, clima, viento, mar, cielo, barco, jugador y gráficos en vivo.
+- [x] Brújula básica en la mano (Q): rosa que apunta al norte del mapa con inercia; no impide caminar ni mirar (`test_compass`).
 - [ ] Estela: espuma persistente que crece y se desvanece (dos texturas alternadas que siguen a la cámara, idea de emilje/godot-water-shader).
 
 **Terminado cuando:** un barco con vela navega, vira contra el viento en zigzag, y uno más largo gira más lento que uno corto.
@@ -126,7 +133,7 @@ Una isla, el astillero y aguas someras. Construir, zarpar, pescar, pelear con el
 - [ ] Mar abierto: tormentas, serpientes de marea, Saqueadores.
 - [ ] Las fosas: oscuridad, ciudades hundidas, el Coleccionista.
 - [ ] El Ojo: remolino y combate final.
-- [ ] Ciclo día/noche y clima.
+- [x] Ciclo día/noche y clima (adelantado en la fase 5).
 
 ## Fase 11 — Cooperativo online
 

@@ -30,6 +30,11 @@ var catalog: MaterialCatalog
 var mass: float = 0.0
 var center_of_mass: Vector3 = Vector3.ZERO
 var inertia: Vector3 = Vector3.ZERO
+## Eslora (largo en z) y manga (ancho en x) de lo construido, en metros.
+var length: float = 0.0
+var beam: float = 0.0
+## Piezas funcionales: VoxelMaterial.Part → Array[Vector3i] de sus celdas.
+var parts: Dictionary = {}
 
 var compartments: Array[Compartment] = []
 ## Aire interior seco: id de compartimento + 1 por voxel (0 = no). Es un dato
@@ -107,14 +112,20 @@ func flooded_count() -> int:
 func _compute_mass() -> void:
 	var densities: PackedFloat32Array = PackedFloat32Array()
 	densities.resize(256)
+	var part_of: PackedByteArray = PackedByteArray()
+	part_of.resize(256)
 	for id: int in catalog.materials.size():
 		var material: VoxelMaterial = catalog.get_material(id)
 		if material:
 			densities[id] = material.density
+			part_of[id] = material.part
 	var s: Vector3i = data.size
 	var total: float = 0.0
 	var moment: Vector3 = Vector3.ZERO
 	var second: Vector3 = Vector3.ZERO
+	var low: Vector2i = Vector2i(s.x, s.z)
+	var high: Vector2i = Vector2i(-1, -1)
+	parts.clear()
 	for z: int in s.z:
 		for x: int in s.x:
 			var base: int = x * s.y + z * s.y * s.x
@@ -122,12 +133,20 @@ func _compute_mass() -> void:
 				var id: int = data.voxels[base + y]
 				if id == 0:
 					continue
+				low = low.min(Vector2i(x, z))
+				high = high.max(Vector2i(x, z))
+				if part_of[id] != VoxelMaterial.Part.NONE:
+					if not parts.has(part_of[id]):
+						parts[part_of[id]] = [] as Array[Vector3i]
+					parts[part_of[id]].append(Vector3i(x, y, z))
 				var m: float = densities[id] * VOXEL_VOLUME
 				var p: Vector3 = (Vector3(x, y, z) + Vector3.ONE * 0.5) * ShipData.VOXEL_SIZE
 				total += m
 				moment += m * p
 				second += m * p * p
 	mass = total
+	beam = maxf(high.x - low.x + 1, 1) * ShipData.VOXEL_SIZE
+	length = maxf(high.y - low.y + 1, 1) * ShipData.VOXEL_SIZE
 	if total == 0.0:
 		center_of_mass = Vector3.ZERO
 		inertia = Vector3.ZERO
