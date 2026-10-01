@@ -4,7 +4,8 @@
 [ext_resource type="Shader" path="res://ocean/ocean.gdshader" id="3_shader"]
 [ext_resource type="Resource" path="res://ocean/default_waves.tres" id="4_waves"]
 [ext_resource type="Script" path="res://ocean/buoyant_body.gd" id="5_buoy"]
-[ext_resource type="Script" path="res://sandbox/test_ship.gd" id="6_ship"]
+[ext_resource type="Script" path="res://sandbox/sloop_ship.gd" id="6_ship"]
+[ext_resource type="PackedScene" path="res://assets/ships/sloop/sloop.glb" id="22_sloop"]
 [ext_resource type="Resource" path="res://ship/data/materials.tres" id="7_mats"]
 [ext_resource type="Script" path="res://ship/mesh/ship_mesh.gd" id="8_mesh"]
 [ext_resource type="Script" path="res://ship/mesh/water_mask.gd" id="9_mask"]
@@ -105,7 +106,10 @@ script = ExtResource("6_ship")
 waves = ExtResource("4_waves")
 catalog = ExtResource("7_mats")
 
+[node name="Model" parent="TestShip" instance=ExtResource("22_sloop")]
+
 [node name="Hull" type="Node3D" parent="TestShip" node_paths=PackedStringArray("ship")]
+visible = false
 script = ExtResource("8_mesh")
 catalog = ExtResource("7_mats")
 ship = NodePath("..")
@@ -115,7 +119,7 @@ surface_material = SubResource("hull_mat")
 script = ExtResource("11_deck")
 
 [node name="Player" parent="TestShip" instance=ExtResource("12_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.75, 5.05, 23)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 5.6, 13)
 
 [node name="Rig" type="Node" parent="TestShip"]
 script = ExtResource("17_rig")

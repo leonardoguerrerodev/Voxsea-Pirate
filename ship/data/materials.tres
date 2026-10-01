@@ -47,7 +47,7 @@ color = Color(0.2, 0.45, 0.42, 1)
 [sub_resource type="Resource" id="Resource_jt5qv"]
 script = ExtResource("1_k3uck")
 display_name = "Vela chica"
-density = 1600.0
+density = 640.0
 resistance = 2.0
 color = Color(0.45, 0.3, 0.15, 1)
 part = 1
@@ -57,7 +57,7 @@ mast_height = 7.0
 [sub_resource type="Resource" id="Resource_3fld8"]
 script = ExtResource("1_k3uck")
 display_name = "Vela grande"
-density = 4000.0
+density = 1600.0
 resistance = 2.0
 color = Color(0.45, 0.3, 0.15, 1)
 part = 1
