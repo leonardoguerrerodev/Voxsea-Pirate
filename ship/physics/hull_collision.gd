@@ -28,6 +28,9 @@ func _ready() -> void:
 			faces.append(xform * vertex)
 	var concave: ConcavePolygonShape3D = ConcavePolygonShape3D.new()
 	concave.set_faces(faces)
+	# Las normales del modelo miran hacia afuera: sin esto, desde la bodega se
+	# atraviesan el casco y la cubierta.
+	concave.backface_collision = true
 	var shape: CollisionShape3D = CollisionShape3D.new()
 	shape.shape = concave
 	add_child(shape)

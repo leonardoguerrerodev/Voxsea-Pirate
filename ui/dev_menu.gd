@@ -103,6 +103,7 @@ func _build() -> void:
 	_slider(player, "jump_velocity", "Salto", 1.0, 15.0, 0.5)
 	_slider(player, "mouse_sensitivity", "Sensibilidad del mouse", 0.01, 0.5, 0.01)
 	_button("Dar objetos de prueba", _give_test_items)
+	_button("Borrar partida guardada", func() -> void: SaveGame.delete())
 	_section("Gráficos")
 	_slider(get_viewport(), "scaling_3d_scale", "Escala de render 3D", 0.25, 1.0, 0.05)
 	var env: Environment = sky.environment

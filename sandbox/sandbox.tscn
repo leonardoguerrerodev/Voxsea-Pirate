@@ -18,6 +18,10 @@
 [ext_resource type="Script" path="res://ship/physics/hull_collision.gd" id="23_collision"]
 [ext_resource type="Script" path="res://sailing/ship_part.gd" id="24_part"]
 [ext_resource type="Script" path="res://decor/decor_placer.gd" id="25_placer"]
+[ext_resource type="Script" path="res://core/save_game.gd" id="26_save"]
+[ext_resource type="Script" path="res://ship/hold/hold_interior.gd" id="27_hold"]
+[ext_resource type="Texture2D" path="res://assets/textures/wood_deck.jpg" id="28_deck_tex"]
+[ext_resource type="Texture2D" path="res://assets/textures/wood_dark.jpg" id="29_dark_tex"]
 
 [sub_resource type="PlaneMesh" id="sea_mesh"]
 size = Vector2(512, 512)
@@ -52,6 +56,16 @@ albedo_color = Color(0.55, 0.35, 0.18, 1)
 
 [sub_resource type="BoxMesh" id="box_mesh"]
 material = SubResource("box_mat")
+
+[sub_resource type="StandardMaterial3D" id="hold_floor_mat"]
+albedo_texture = ExtResource("28_deck_tex")
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="hold_stair_mat"]
+albedo_texture = ExtResource("29_dark_tex")
+roughness = 0.85
+uv1_triplanar = true
+uv1_scale = Vector3(0.7, 0.7, 0.7)
 
 [node name="Sandbox" type="Node3D"]
 
@@ -100,6 +114,13 @@ grid_path = "res://assets/ships/sloop/sloop.grid"
 script = ExtResource("23_collision")
 model = NodePath("../Model")
 
+[node name="Hold" type="AnimatableBody3D" parent="TestShip"]
+script = ExtResource("27_hold")
+hatch_min = Vector2(4.01, 10.21)
+hatch_max = Vector2(6.49, 12.72)
+floor_material = SubResource("hold_floor_mat")
+stair_material = SubResource("hold_stair_mat")
+
 [node name="Sail" type="Node3D" parent="TestShip"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 5.368, 7.6)
 script = ExtResource("24_part")
@@ -141,13 +162,14 @@ ship = NodePath("..")
 [node name="CenterOfMass" type="MeshInstance3D" parent="TestShip/Debug"]
 mesh = SubResource("com_mesh")
 
-[node name="GameUI" type="CanvasLayer" parent="." node_paths=PackedStringArray("player", "ship", "sky", "ocean", "placer")]
+[node name="GameUI" type="CanvasLayer" parent="." node_paths=PackedStringArray("player", "ship", "sky", "ocean", "placer", "save")]
 script = ExtResource("16_ui")
 player = NodePath("../TestShip/Player")
 ship = NodePath("../TestShip")
 sky = NodePath("../Sky3D")
 ocean = NodePath("../Ocean")
 placer = NodePath("../Decor")
+save = NodePath("../Save")
 
 [node name="Helm" type="Node" parent="." node_paths=PackedStringArray("ship", "rig", "player")]
 script = ExtResource("19_helm")
@@ -164,3 +186,8 @@ script = ExtResource("25_placer")
 ship = NodePath("../TestShip")
 player = NodePath("../TestShip/Player")
 camera = NodePath("../TestShip/Player/Head/Camera")
+
+[node name="Save" type="Node" parent="." node_paths=PackedStringArray("ship", "player")]
+script = ExtResource("26_save")
+ship = NodePath("../TestShip")
+player = NodePath("../TestShip/Player")
