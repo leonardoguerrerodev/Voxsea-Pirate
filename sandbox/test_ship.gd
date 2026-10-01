@@ -1,10 +1,24 @@
 extends ShipBody
-## Barco de prueba generado por código: casco de tablón sin cubierta, con dos
-## mamparos que lo dividen en tres compartimentos.
+## Barco de prueba generado por código: casco de tablón con cubierta y borda, dos
+## mamparos que lo dividen en tres compartimentos, quilla de hierro como lastre y
+## una escotilla con escalera para bajar a la bodega del compartimento central.
 
-@export var hull_size: Vector3i = Vector3i(24, 10, 48)
+@export var hull_size: Vector3i = Vector3i(24, 12, 48)
+## Grilla del barco: más grande que el casco para tener dónde construir.
+@export var grid_size: Vector3i = Vector3i(32, 24, 64)
 
 const PLANK: int = 2
+const IRON: int = 3
+## Ancho de la quilla de hierro, en voxels, al centro del fondo.
+const KEEL_WIDTH: int = 4
+## Fila de la cubierta (su tope queda a 5 m). Encima va la borda, de dos voxels
+## para que la subida automática de escalones no la trepe.
+const DECK_Y: int = 9
+## Escalera: 8 escalones de un voxel, 4 voxels de ancho al centro, desde la bodega
+## (z = STAIRS_Z) hacia popa; la escotilla se abre sobre los 7 de arriba (la
+## cabeza del jugador necesita ese espacio al bajar).
+const STAIRS_Z: int = 18
+const STAIRS_WIDTH: int = 4
 
 
 func _enter_tree() -> void:
@@ -14,7 +28,9 @@ func _enter_tree() -> void:
 
 
 func _build_hull() -> ShipData:
-	var ship: ShipData = ShipData.new(hull_size)
+	var ship: ShipData = ShipData.new(grid_size)
+	# Casco centrado en x (el eje del espejo) y en z, apoyado en y = 0.
+	var offset: Vector3i = Vector3i((grid_size.x - hull_size.x) / 2, 0, (grid_size.z - hull_size.z) / 2)
 	var command: ShipEditCommand = ShipEditCommand.new()
 	var center: float = (hull_size.x - 1) / 2.0
 	var bulkheads: Array[int] = [hull_size.z / 3, hull_size.z * 2 / 3]
@@ -26,7 +42,15 @@ func _build_hull() -> ShipData:
 				var dx: float = absf(x - center)
 				if dx > half + 0.5:
 					continue
-				if dx > half - 0.5 or y == 0 or z == 0 or z == hull_size.z - 1 or z in bulkheads:
-					command.add(Vector3i(x, y, z), PLANK)
+				var shell: bool = dx > half - 0.5 or z == 0 or z == hull_size.z - 1
+				var on_stairs: bool = dx < STAIRS_WIDTH / 2.0
+				var step: int = z - STAIRS_Z
+				var hatch: bool = on_stairs and step >= 2 and step <= 8
+				if y == 0 and dx < KEEL_WIDTH / 2.0:
+					command.add(offset + Vector3i(x, y, z), IRON)
+				elif shell or y == 0 or (z in bulkheads and y < DECK_Y) or (y == DECK_Y and not hatch):
+					command.add(offset + Vector3i(x, y, z), PLANK)
+				elif on_stairs and step >= 1 and step <= 8 and y == step:
+					command.add(offset + Vector3i(x, y, z), PLANK)
 	ShipEditor.apply(ship, command)
 	return ship

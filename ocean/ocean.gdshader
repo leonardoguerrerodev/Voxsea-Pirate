@@ -30,7 +30,7 @@ uniform float inner_radius = 0.0;
 
 // Aire seco dentro del barco (WaterMask): ahí el mar no se dibuja.
 // ponytail: un barco por océano; varios → arreglo de transformaciones + atlas 3D.
-uniform sampler3D ship_dry_air : filter_nearest;
+uniform sampler3D ship_dry_air : filter_nearest; // VoxelTexture: ejes (y, x, z)
 uniform mat4 ship_inverse = mat4(1.0); // mundo → coordenadas de voxel del barco
 uniform ivec3 ship_size = ivec3(0); // 0 = sin barco
 
@@ -90,7 +90,7 @@ void fragment() {
 	}
 	if (ship_size.x > 0) {
 		ivec3 voxel = ivec3(floor((ship_inverse * vec4(world, 1.0)).xyz));
-		if (all(greaterThanEqual(voxel, ivec3(0))) && all(lessThan(voxel, ship_size)) && texelFetch(ship_dry_air, voxel, 0).r > 0.5) {
+		if (all(greaterThanEqual(voxel, ivec3(0))) && all(lessThan(voxel, ship_size)) && texelFetch(ship_dry_air, voxel.yxz, 0).r > 0.0) {
 			discard;
 		}
 	}

@@ -1,6 +1,5 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://sandbox/orbit_camera.gd" id="1_cam"]
 [ext_resource type="Script" path="res://ocean/ocean_surface.gd" id="2_ocean"]
 [ext_resource type="Shader" path="res://ocean/ocean.gdshader" id="3_shader"]
 [ext_resource type="Resource" path="res://ocean/default_waves.tres" id="4_waves"]
@@ -10,6 +9,11 @@
 [ext_resource type="Script" path="res://ship/mesh/ship_mesh.gd" id="8_mesh"]
 [ext_resource type="Script" path="res://ship/mesh/water_mask.gd" id="9_mask"]
 [ext_resource type="Script" path="res://ship/debug/ship_debug.gd" id="10_debug"]
+[ext_resource type="Script" path="res://ship/physics/ship_deck.gd" id="11_deck"]
+[ext_resource type="PackedScene" path="res://player/player.tscn" id="12_player"]
+[ext_resource type="Script" path="res://building/ship_builder.gd" id="13_builder"]
+[ext_resource type="Shader" path="res://ship/mesh/hull.gdshader" id="14_hull"]
+[ext_resource type="Script" path="res://ui/game_ui.gd" id="16_ui"]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
 ground_bottom_color = Color(0.42, 0.48, 0.54, 1)
@@ -41,6 +45,9 @@ size = Vector2(8000, 8000)
 render_priority = -1
 shader = ExtResource("3_shader")
 shader_parameter/inner_radius = 250.0
+
+[sub_resource type="ShaderMaterial" id="hull_mat"]
+shader = ExtResource("14_hull")
 
 [sub_resource type="StandardMaterial3D" id="dry_air_mat"]
 transparency = 1
@@ -76,9 +83,6 @@ environment = SubResource("env")
 transform = Transform3D(1, 0, 0, 0, 0.643, -0.766, 0, 0.766, 0.643, 0, 0, 0)
 shadow_enabled = true
 
-[node name="OrbitCamera" type="Camera3D" parent="."]
-script = ExtResource("1_cam")
-
 [node name="Ocean" type="MeshInstance3D" parent="."]
 cast_shadow = 0
 extra_cull_margin = 16.0
@@ -108,7 +112,7 @@ mesh = SubResource("box_mesh")
 
 
 [node name="TestShip" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
 can_sleep = false
 script = ExtResource("6_ship")
 waves = ExtResource("4_waves")
@@ -118,6 +122,13 @@ catalog = ExtResource("7_mats")
 script = ExtResource("8_mesh")
 catalog = ExtResource("7_mats")
 ship = NodePath("..")
+surface_material = SubResource("hull_mat")
+
+[node name="Deck" type="AnimatableBody3D" parent="TestShip"]
+script = ExtResource("11_deck")
+
+[node name="Player" parent="TestShip" instance=ExtResource("12_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.75, 5.05, 23)
 
 [node name="WaterMask" type="Node" parent="TestShip" node_paths=PackedStringArray("ship", "ocean")]
 script = ExtResource("9_mask")
@@ -136,3 +147,12 @@ surface_material = SubResource("dry_air_mat")
 
 [node name="CenterOfMass" type="MeshInstance3D" parent="TestShip/Debug"]
 mesh = SubResource("com_mesh")
+
+[node name="Builder" type="Node" parent="." node_paths=PackedStringArray("ship", "camera", "player")]
+script = ExtResource("13_builder")
+ship = NodePath("../TestShip")
+camera = NodePath("../TestShip/Player/Head/Camera")
+player = NodePath("../TestShip/Player")
+
+[node name="GameUI" type="CanvasLayer" parent="."]
+script = ExtResource("16_ui")

@@ -6,7 +6,9 @@ El barco es tu personaje. No mejoras al pirata: mejoras el barco.
 
 ## Estado
 
-Fases 0, 1, 2 y 4 listas: proyecto base, océano, barco voxel y su flotabilidad e inundación. El concepto, el lore y el plan están en `docs/`.
+Fases 0 a 4 listas: océano, barco voxel que flota y se inunda, y modo construcción en primera persona.
+
+Controles: WASD, espacio, Shift, C · B construir (dique seco) · clic izq./der. poner/quitar · T herramienta · 1-6 material · M espejo · Ctrl+Z/Y · F3 depuración · F1 ayuda · Esc pausa. El concepto, el lore y el plan están en `docs/`.
 
 ## Documentación
 
