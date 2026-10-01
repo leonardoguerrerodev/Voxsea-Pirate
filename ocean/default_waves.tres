@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="WaveSettings" format=3]
+
+[ext_resource type="Script" path="res://ocean/wave_settings.gd" id="1_n7erf"]
+[ext_resource type="Script" path="res://ocean/wave.gd" id="2_qqiq7"]
+
+[sub_resource type="Resource" id="Resource_wx5vk"]
+script = ExtResource("2_qqiq7")
+amplitude = 0.5
+wavelength = 60.0
+steepness = 0.6
+
+[sub_resource type="Resource" id="Resource_5j4x4"]
+script = ExtResource("2_qqiq7")
+direction = 25.0
+amplitude = 0.35
+wavelength = 40.0
+steepness = 0.6
+
+[sub_resource type="Resource" id="Resource_ij3sy"]
+script = ExtResource("2_qqiq7")
+direction = -30.0
+amplitude = 0.22
+wavelength = 26.0
+steepness = 0.6
+
+[sub_resource type="Resource" id="Resource_xg4yr"]
+script = ExtResource("2_qqiq7")
+direction = 50.0
+amplitude = 0.15
+wavelength = 17.0
+steepness = 0.6
+
+[sub_resource type="Resource" id="Resource_gyh7h"]
+script = ExtResource("2_qqiq7")
+direction = -15.0
+amplitude = 0.1
+wavelength = 12.0
+steepness = 0.6
+
+[sub_resource type="Resource" id="Resource_wtga8"]
+script = ExtResource("2_qqiq7")
+direction = 70.0
+amplitude = 0.07
+wavelength = 9.0
+steepness = 0.6
+
+[sub_resource type="Resource" id="Resource_37bq4"]
+script = ExtResource("2_qqiq7")
+direction = -55.0
+amplitude = 0.05
+wavelength = 7.0
+steepness = 0.6
+
+[sub_resource type="Resource" id="Resource_l6xrk"]
+script = ExtResource("2_qqiq7")
+direction = 10.0
+amplitude = 0.03
+wavelength = 5.0
+steepness = 0.6
+
+[resource]
+script = ExtResource("1_n7erf")
+waves = Array[ExtResource("2_qqiq7")]([SubResource("Resource_wx5vk"), SubResource("Resource_5j4x4"), SubResource("Resource_ij3sy"), SubResource("Resource_xg4yr"), SubResource("Resource_gyh7h"), SubResource("Resource_wtga8"), SubResource("Resource_37bq4"), SubResource("Resource_l6xrk")])

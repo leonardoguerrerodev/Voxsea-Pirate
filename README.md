@@ -6,7 +6,7 @@ El barco es tu personaje. No mejoras al pirata: mejoras el barco.
 
 ## Estado
 
-Preproducción. El concepto, el lore y el plan están en `docs/`. El proyecto de Godot se crea en la fase 0.
+Fases 0 a 2 listas: proyecto base, océano con objeto flotante y barco voxel. El concepto, el lore y el plan están en `docs/`.
 
 ## Documentación
 
@@ -17,10 +17,10 @@ Preproducción. El concepto, el lore y el plan están en `docs/`. El proyecto de
 
 ## Requisitos
 
-- Godot 4.x estable (edición estándar, no .NET).
-- Git LFS. Ejecuta `git lfs install` una vez antes de subir modelos, texturas o audio. Las extensiones que van por LFS están en `.gitattributes`.
+- Godot 4.7.2 estable (edición estándar, no .NET).
+- Git LFS. Ejecuta `git lfs install` una vez antes de clonar: los binarios de Voxel Tools (`addons/zylann.voxel/bin/`), modelos, texturas y audio van por LFS. Las extensiones que van por LFS están en `.gitattributes`.
 
 ## Cómo abrir
 
 1. Clona el repo.
-2. En Godot, usa Importar y elige `project.godot` (existe desde la fase 0).
+2. En Godot, usa Importar y elige `project.godot`.

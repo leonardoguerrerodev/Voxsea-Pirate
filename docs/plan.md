@@ -4,39 +4,43 @@ Cada fase deja algo que se puede probar. Una fase está terminada cuando cumple 
 
 ## Fase 0 — Proyecto base
 
-- [ ] Crear el proyecto Godot 4 con renderer Forward+ en la raíz del repo.
-- [ ] Activar Jolt Physics en la configuración del proyecto.
-- [ ] Crear la estructura de carpetas de `CLAUDE.md`.
-- [ ] Autoloads vacíos: `Game` (reloj del mar, estado global) y `Events` (bus de señales).
-- [ ] Escena de prueba con cámara orbital y luz direccional.
+- [x] Crear el proyecto Godot 4 con renderer Forward+ en la raíz del repo.
+- [x] Activar Jolt Physics en la configuración del proyecto.
+- [x] Estructura de carpetas de `CLAUDE.md`: se crea cada carpeta cuando una fase la usa (por ahora `core/` y `sandbox/`).
+- [x] Autoloads vacíos: `Game` (reloj del mar, estado global) y `Events` (bus de señales).
+- [x] Escena de prueba con cámara orbital y luz direccional (`sandbox/sandbox.tscn`).
 
 **Terminado cuando:** el proyecto abre sin errores, el commit no incluye `.godot/` y la cámara orbita la escena vacía.
 
 ## Fase 1 — Océano y objeto flotante
 
-- [ ] Recurso `WaveSettings` con 8 ondas (dirección, amplitud, longitud, empinamiento).
-- [ ] Malla del mar centrada en la cámara.
-- [ ] Shader de Gerstner que lee `WaveSettings` y `Game.ocean_time`.
-- [ ] `Ocean.get_wave_height(x, z, t)` en GDScript con la misma fórmula.
-- [ ] Cubo `RigidBody3D` con 8 puntos de flotabilidad en sus esquinas.
-- [ ] Color por profundidad, espuma en crestas, reflejo del cielo.
+- [x] Recurso `WaveSettings` con 8 ondas (dirección, amplitud, longitud, empinamiento).
+- [x] Malla del mar centrada en la cámara (512 m, 1 m por vértice) + falda de horizonte.
+- [x] Shader de Gerstner que lee `WaveSettings` y `Game.ocean_time`.
+- [x] `WaveSettings.get_wave_height(x, z, t)` en GDScript con la misma fórmula (invierte el desplazamiento horizontal).
+- [x] Cubo `RigidBody3D` con 8 puntos de flotabilidad (centros de sus 8 celdas).
+- [x] Color por profundidad, espuma en crestas y en contacto, reflejo del cielo.
+- [x] Test `tests/test_ocean.gd`: inversión de altura y cubo a nivel de la ola.
 
 **Terminado cuando:** el cubo sigue las olas sin atravesarlas ni flotar por encima, y cambiar `WaveSettings` en el inspector cambia el mar y el comportamiento del cubo a la vez.
 
 ## Fase 2 — Datos voxel y mesher
 
-- [ ] `VoxelMaterial` (recurso): id, nombre, densidad, resistencia, color.
-- [ ] `ShipData`: grilla en `PackedByteArray`, dividida en chunks de 16³, con señal `changed(chunk)`.
-- [ ] `ShipEditCommand` y `ShipEditor.apply()`.
-- [ ] Mesher con greedy meshing por chunk, en un hilo aparte.
-- [ ] Barco de prueba generado por código (casco simple).
-- [ ] Medir tiempo de remallado por chunk.
+- [x] Prueba de Voxel Tools v1.7x (GDExtension) en 4.7.2: aprobada. `VoxelMesherCubes` con greedy meshing y paleta; la malla es un `ArrayMesh` normal que se mueve con cualquier nodo.
+- [x] `VoxelMaterial` (recurso): nombre, densidad, resistencia, color. El id es su índice en `MaterialCatalog` (`ship/data/materials.tres`).
+- [x] `ShipData`: grilla en `PackedByteArray` (orden ZXY de `VoxelBuffer`), chunks de 16³, con señal `changed(chunk)`.
+- [x] `ShipEditCommand` y `ShipEditor.apply()`, que devuelve el comando inverso (base del deshacer).
+- [x] `ShipMesh`: greedy meshing por chunk con `VoxelMesherCubes`. ~~En un hilo aparte~~: no hizo falta (ver medición).
+- [x] Barco de prueba generado por código (`sandbox/test_ship.gd`).
+- [x] Medir tiempo de remallado por chunk: 0,19 ms un chunk lleno; 6,6 ms el peor caso (ajedrez 3D), en el MacPro.
+- [x] Test `tests/test_ship.gd`.
 
 **Terminado cuando:** el barco de prueba se ve, un comando que cambia un voxel remalla solo su chunk, y el remallado de un chunk lleno tarda menos de 8 ms. Si no, se decide el port a GDExtension antes de seguir.
 
 ## Fase 3 — Modo construcción
 
-- [ ] Cursor 3D que apunta a la cara del voxel bajo el mouse.
+- [ ] Jugador en primera persona (Quality First Person Controller) para recorrer el astillero.
+- [ ] Cursor 3D que apunta a la cara del voxel bajo la mira.
 - [ ] Colocar y quitar voxels; elegir material.
 - [ ] Simetría espejo (babor/estribor).
 - [ ] Deshacer y rehacer con la pila de comandos.
@@ -63,7 +67,7 @@ Cada fase deja algo que se puede probar. Una fase está terminada cuando cumple 
 - [ ] Pieza timón: torque proporcional a la velocidad.
 - [ ] Resistencia del casco según su forma frontal.
 - [ ] Ancla.
-- [ ] Cámara de navegación en tercera persona.
+- [ ] Caminar sobre la cubierta en movimiento en primera persona y tomar el timón.
 
 **Terminado cuando:** un barco con vela navega, vira contra el viento en zigzag, y uno más largo gira más lento que uno corto.
 
