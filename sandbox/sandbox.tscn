@@ -14,21 +14,11 @@
 [ext_resource type="Script" path="res://building/ship_builder.gd" id="13_builder"]
 [ext_resource type="Shader" path="res://ship/mesh/hull.gdshader" id="14_hull"]
 [ext_resource type="Script" path="res://ui/game_ui.gd" id="16_ui"]
-
-[sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
-ground_bottom_color = Color(0.42, 0.48, 0.54, 1)
-ground_horizon_color = Color(0.6, 0.65, 0.7, 1)
-
-[sub_resource type="Sky" id="sky"]
-sky_material = SubResource("sky_mat")
-
-[sub_resource type="Environment" id="env"]
-background_mode = 2
-sky = SubResource("sky")
-fog_enabled = true
-fog_light_color = Color(0.6, 0.65, 0.7, 1)
-fog_density = 0.004
-fog_sky_affect = 0.0
+[ext_resource type="Script" path="res://sailing/ship_rig.gd" id="17_rig"]
+[ext_resource type="Script" path="res://sailing/ship_parts_view.gd" id="18_parts"]
+[ext_resource type="Script" path="res://sailing/helm_control.gd" id="19_helm"]
+[ext_resource type="Script" path="res://addons/sky_3d/src/Sky3D.gd" id="20_sky"]
+[ext_resource type="Script" path="res://world/weather_view.gd" id="21_weather"]
 
 [sub_resource type="PlaneMesh" id="sea_mesh"]
 size = Vector2(512, 512)
@@ -76,12 +66,9 @@ material = SubResource("box_mat")
 
 [node name="Sandbox" type="Node3D"]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("env")
-
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.643, -0.766, 0, 0.766, 0.643, 0, 0, 0)
-shadow_enabled = true
+[node name="Sky3D" type="WorldEnvironment" parent="."]
+script = ExtResource("20_sky")
+game_time_enabled = false
 
 [node name="Ocean" type="MeshInstance3D" parent="."]
 cast_shadow = 0
@@ -130,6 +117,14 @@ script = ExtResource("11_deck")
 [node name="Player" parent="TestShip" instance=ExtResource("12_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.75, 5.05, 23)
 
+[node name="Rig" type="Node" parent="TestShip"]
+script = ExtResource("17_rig")
+
+[node name="Parts" type="Node3D" parent="TestShip" node_paths=PackedStringArray("ship", "rig")]
+script = ExtResource("18_parts")
+ship = NodePath("..")
+rig = NodePath("../Rig")
+
 [node name="WaterMask" type="Node" parent="TestShip" node_paths=PackedStringArray("ship", "ocean")]
 script = ExtResource("9_mask")
 ship = NodePath("..")
@@ -154,5 +149,18 @@ ship = NodePath("../TestShip")
 camera = NodePath("../TestShip/Player/Head/Camera")
 player = NodePath("../TestShip/Player")
 
-[node name="GameUI" type="CanvasLayer" parent="."]
+[node name="GameUI" type="CanvasLayer" parent="." node_paths=PackedStringArray("player", "ship", "sky")]
 script = ExtResource("16_ui")
+player = NodePath("../TestShip/Player")
+ship = NodePath("../TestShip")
+sky = NodePath("../Sky3D")
+
+[node name="Helm" type="Node" parent="." node_paths=PackedStringArray("ship", "rig", "player")]
+script = ExtResource("19_helm")
+ship = NodePath("../TestShip")
+rig = NodePath("../TestShip/Rig")
+player = NodePath("../TestShip/Player")
+
+[node name="WeatherView" type="Node" parent="." node_paths=PackedStringArray("sky")]
+script = ExtResource("21_weather")
+sky = NodePath("../Sky3D")

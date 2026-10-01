@@ -3,8 +3,8 @@ extends Node
 ## Modo construcción en primera persona. B pone el barco en dique seco (congelado
 ## y derecho) y lo suelta al salir. Se apunta con la mira: clic izquierdo pone,
 ## derecho quita. Herramientas voxel / línea / caja (arrastrando), espejo
-## babor-estribor, materiales 1-6, deshacer y rehacer. Todo pasa por comandos
-## (regla 2).
+## babor-estribor, materiales y piezas con 1-9 y 0 (el id del catálogo; 0 = 10),
+## deshacer y rehacer. Todo pasa por comandos (regla 2).
 # ponytail: la grilla del barco tiene tamaño fijo; construir fuera de ella no hace
 # nada. Agrandar ShipData cuando haga falta.
 
@@ -64,7 +64,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		history.redo(ship.data)
 	elif event is InputEventKey and event.is_pressed() and not event.is_echo():
 		var digit: int = (event as InputEventKey).physical_keycode - KEY_0
-		if digit >= 1 and digit < ship.catalog.materials.size():
+		if digit == 0:
+			digit = 10
+		if digit >= 1 and digit <= 10 and digit < ship.catalog.materials.size():
 			material_id = digit
 	elif _has_target and (event.is_action_pressed("build_place") or event.is_action_pressed("build_remove")):
 		_removing = event.is_action_pressed("build_remove")

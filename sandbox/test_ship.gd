@@ -2,6 +2,7 @@ extends ShipBody
 ## Barco de prueba generado por código: casco de tablón con cubierta y borda, dos
 ## mamparos que lo dividen en tres compartimentos, quilla de hierro como lastre y
 ## una escotilla con escalera para bajar a la bodega del compartimento central.
+## En cubierta: vela grande a proa, timón a popa y ancla en la proa. Proa = z bajo.
 
 @export var hull_size: Vector3i = Vector3i(24, 12, 48)
 ## Grilla del barco: más grande que el casco para tener dónde construir.
@@ -19,6 +20,13 @@ const DECK_Y: int = 9
 ## cabeza del jugador necesita ese espacio al bajar).
 const STAIRS_Z: int = 18
 const STAIRS_WIDTH: int = 4
+const SAIL: int = 8
+const HELM: int = 9
+const ANCHOR: int = 10
+## Piezas sobre la cubierta, en z del casco (al centro en x).
+const SAIL_Z: int = 12
+const HELM_Z: int = 42
+const ANCHOR_Z: int = 4
 
 
 func _enter_tree() -> void:
@@ -52,5 +60,10 @@ func _build_hull() -> ShipData:
 					command.add(offset + Vector3i(x, y, z), PLANK)
 				elif on_stairs and step >= 1 and step <= 8 and y == step:
 					command.add(offset + Vector3i(x, y, z), PLANK)
+	var deck: int = DECK_Y + 1
+	var middle: int = int(center)
+	command.add(offset + Vector3i(middle, deck, SAIL_Z), SAIL)
+	command.add(offset + Vector3i(middle, deck, HELM_Z), HELM)
+	command.add(offset + Vector3i(middle, deck, ANCHOR_Z), ANCHOR)
 	ShipEditor.apply(ship, command)
 	return ship

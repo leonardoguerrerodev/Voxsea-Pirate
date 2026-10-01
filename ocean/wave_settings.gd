@@ -11,6 +11,9 @@ const INVERT_STEPS: int = 4
 const STRIDE: int = 6
 
 @export var waves: Array[Wave] = []
+## Escala la altura de todas las ondas (la cambia el clima). Se aplica aquí, en el
+## único lugar que leen la CPU y el shader.
+@export_range(0.0, 3.0, 0.01) var amplitude_scale: float = 1.0
 
 
 ## Desplazamiento del punto de reposo (x, z) en el tiempo t.
@@ -41,7 +44,7 @@ func to_shader_array() -> PackedVector4Array:
 	for i: int in mini(waves.size(), MAX_WAVES):
 		var wave: Wave = waves[i]
 		# Una onda vacía queda en amplitud 0: no aporta, igual que en la CPU.
-		result[i] = Vector4(deg_to_rad(wave.direction), wave.amplitude, wave.wavelength, wave.steepness) if wave else Vector4(0.0, 0.0, 1.0, 0.0)
+		result[i] = Vector4(deg_to_rad(wave.direction), wave.amplitude * amplitude_scale, wave.wavelength, wave.steepness) if wave else Vector4(0.0, 0.0, 1.0, 0.0)
 	return result
 
 
@@ -79,5 +82,5 @@ func _constants() -> PackedFloat32Array:
 		var k: float = TAU / wave.wavelength
 		# El desplazamiento horizontal se divide por todas las ondas (count), igual
 		# que en el shader, aunque alguna esté vacía.
-		c.append_array([dir.x, dir.y, k, sqrt(GRAVITY / k), wave.amplitude, wave.steepness / (k * count)])
+		c.append_array([dir.x, dir.y, k, sqrt(GRAVITY / k), wave.amplitude * amplitude_scale, wave.steepness / (k * count)])
 	return c

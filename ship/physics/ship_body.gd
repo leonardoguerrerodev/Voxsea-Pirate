@@ -13,23 +13,23 @@ const FLOOD_INTERVAL: float = 0.1
 
 @export var waves: WaveSettings
 @export var catalog: MaterialCatalog
-## Arrastre por kilo de agua desplazada (1/s). Amortigua movimiento y giro.
+## Arrastre vertical por kilo de agua desplazada (1/s): amortigua el subir y bajar
+## y, en cada celda, el balanceo. El avance y el rumbo los frena el casco (ShipRig).
 @export_range(0.0, 10.0, 0.05) var water_drag: float = 2.0
+## Amortiguación de escora y cabeceo en el agua (1/s). Sin esto un casco liviano
+## sigue cada pendiente del mar (medido: 20° → 7° de escora máx. con 3). No frena
+## el giro de rumbo.
+@export_range(0.0, 10.0, 0.1) var roll_damping: float = 3.0
 ## Voxels por segundo que entran por cada abertura sumergida.
 @export_range(0.0, 50.0, 0.5) var flood_rate: float = 4.0
 
 var data: ShipData
 var hydro: ShipHydrostatics
+## Volumen sumergido en el último paso físico (m³). Lo usa ShipRig.
+var submerged_volume: float = 0.0
 
 var _dirty: bool = false
 var _flood_time: float = 0.0
-
-
-func _init() -> void:
-	# Amortiguamiento de giro del agua: sin esto un casco liviano sigue cada
-	# pendiente del mar (medido: 20° → 7° de escora máx. con 3). La escena puede
-	# cambiarlo.
-	angular_damp = 3.0
 
 
 func _enter_tree() -> void:
@@ -72,6 +72,7 @@ func _apply_buoyancy() -> void:
 	var com: Vector3 = xform * center_of_mass
 	var force: Vector3 = Vector3.ZERO
 	var torque: Vector3 = Vector3.ZERO
+	submerged_volume = 0.0
 	for i: int in hydro.cell_volumes.size():
 		var volume: float = hydro.cell_volumes[i]
 		if volume <= 0.0:
@@ -82,10 +83,16 @@ func _apply_buoyancy() -> void:
 		if submerged == 0.0:
 			continue
 		var displaced: float = WATER_DENSITY * volume * submerged
+		submerged_volume += volume * submerged
 		var arm: Vector3 = world - com
-		var velocity: Vector3 = linear_velocity + angular_velocity.cross(arm)
-		var f: Vector3 = Vector3.UP * displaced * gravity - velocity * displaced * water_drag
+		var rise: float = (linear_velocity + angular_velocity.cross(arm)).y
+		var f: Vector3 = Vector3.UP * displaced * (gravity - rise * water_drag)
 		force += f
 		torque += arm.cross(f)
 	apply_central_force(force)
+	if submerged_volume > 0.0:
+		# Escora y cabeceo, en ejes del barco; el eje y (rumbo) queda libre.
+		var spin: Vector3 = global_basis.inverse() * angular_velocity
+		spin.y = 0.0
+		torque -= global_basis * (spin * inertia * roll_damping)
 	apply_torque(torque)
