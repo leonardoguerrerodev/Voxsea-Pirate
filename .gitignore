@@ -1,0 +1,17 @@
+# Godot 4
+.godot/
+/android/
+*.translation
+
+# Exportaciones
+/builds/
+export_presets.cfg
+
+# .NET (por si se usa C# más adelante)
+.mono/
+data_*/
+mono_crash.*.json
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
