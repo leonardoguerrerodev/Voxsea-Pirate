@@ -1,6 +1,6 @@
-extends SceneTree
-## Chequeo de la fase 1. Correr con:
-## ../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . -s res://tests/test_ocean.gd
+extends Node
+## Chequeo de la fase 1. Correr con (ver tests/run.gd):
+## ../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- test_ocean
 
 const SETTLE_FRAMES: int = 600
 const SAMPLE_FRAMES: int = 600
@@ -11,11 +11,11 @@ var _frame: int = 0
 var _errors: PackedFloat32Array = PackedFloat32Array()
 
 
-func _initialize() -> void:
+func _ready() -> void:
 	_waves = load("res://ocean/default_waves.tres")
 	_check_inversion()
 	var scene: Node = (load("res://sandbox/sandbox.tscn") as PackedScene).instantiate()
-	root.add_child(scene)
+	add_child(scene)
 	_cube = scene.get_node("FloatingCube")
 
 
@@ -34,15 +34,13 @@ func _check_inversion() -> void:
 	assert(worst < 0.005, "get_wave_height no coincide con la superficie desplazada")
 
 
-func _physics_process(_delta: float) -> bool:
+func _physics_process(_delta: float) -> void:
 	_frame += 1
 	if _frame > SETTLE_FRAMES:
 		var p: Vector3 = _cube.global_position
-		# El script de -s compila antes que los autoloads: Game se lee por nodo.
-		var t: float = root.get_node("Game").get("ocean_time")
-		_errors.append(p.y - _waves.get_wave_height(p.x, p.z, t))
+		_errors.append(p.y - _waves.get_wave_height(p.x, p.z, Game.ocean_time))
 	if _frame < SETTLE_FRAMES + SAMPLE_FRAMES:
-		return false
+		return
 	var lo: float = 1e9
 	var hi: float = -1e9
 	var total: float = 0.0
@@ -56,5 +54,5 @@ func _physics_process(_delta: float) -> bool:
 	# ni quedar volando (el cubo mide 1 m, medio lado = 0,5 m).
 	var ok: bool = absf(mean) < 0.15 and lo > -0.5 and hi < 0.5
 	print("OK" if ok else "FALLA")
-	quit(0 if ok else 1)
-	return true
+	get_tree().quit(0 if ok else 1)
+	set_physics_process(false)

@@ -1,16 +1,16 @@
-extends SceneTree
-## Chequeo de la fase 2. Correr con:
-## ../Godot_v4.7.2-stable_linux.x86_64 --headless --path . -s res://tests/test_ship.gd
+extends Node
+## Chequeo de la fase 2. Correr con (ver tests/run.gd):
+## ../Godot_v4.7.2-stable_linux.x86_64 --headless --path . res://tests/run.tscn -- test_ship
 
 var _emitted: Array[Vector3i] = []
 var _failed: bool = false
 
 
-func _initialize() -> void:
+func _ready() -> void:
 	_check_editor()
 	_check_mesh()
 	print("FALLA" if _failed else "OK")
-	quit(1 if _failed else 0)
+	get_tree().quit(1 if _failed else 0)
 
 
 func _expect(ok: bool, what: String) -> void:
@@ -61,7 +61,7 @@ func _check_mesh() -> void:
 	var data: ShipData = ShipData.new(Vector3i(32, 16, 32))
 	var ship: ShipMesh = ShipMesh.new()
 	ship.catalog = load("res://ship/data/materials.tres")
-	root.add_child(ship)
+	add_child(ship)
 	ship.set_data(data)
 
 	_edit(data, Vector3i(0, 0, 0), 2)
