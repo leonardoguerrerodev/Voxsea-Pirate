@@ -7,7 +7,15 @@ extends Node3D
 # realista y 6,6 ms el peor caso (ajedrez). Pasar a WorkerThreadPool si una
 # edición grande (relleno de caja, cañonazo) se nota.
 
+## Colores de la paleta. Sin catálogo, cada id recibe un color distinto
+## (sirve para ver compartimentos).
 @export var catalog: MaterialCatalog
+## Si se asigna, toma sus datos al entrar: el casco o, con show_dry_air, el aire
+## interior seco de cada compartimento.
+@export var ship: ShipBody
+@export var show_dry_air: bool = false
+## Material de las superficies. Vacío = color por vértice opaco.
+@export var surface_material: Material
 
 var data: ShipData
 
@@ -16,6 +24,11 @@ var _full: VoxelBuffer
 var _chunk_buffer: VoxelBuffer
 var _instances: Dictionary = {}
 var _dirty: Dictionary = {}
+
+
+func _ready() -> void:
+	if ship:
+		set_data(ship.hydro.dry_air if show_dry_air else ship.data)
 
 
 func set_data(p_data: ShipData) -> void:
@@ -81,16 +94,20 @@ func _setup_mesher() -> void:
 	_mesher.greedy_meshing_enabled = true
 	_mesher.color_mode = VoxelMesherCubes.COLOR_MESHER_PALETTE
 	var palette: VoxelColorPalette = VoxelColorPalette.new()
-	for id: int in catalog.materials.size():
-		var material: VoxelMaterial = catalog.get_material(id)
+	for id: int in range(1, 256):
+		var material: VoxelMaterial = catalog.get_material(id) if catalog else null
 		if material:
 			palette.set_color(id, material.color)
+		elif catalog == null:
+			palette.set_color(id, Color.from_hsv(fmod(id * 0.618, 1.0), 0.7, 0.9))
 	_mesher.palette = palette
-	var surface: StandardMaterial3D = StandardMaterial3D.new()
-	surface.vertex_color_use_as_albedo = true
-	# La paleta está en sRGB, como los colores del inspector.
-	surface.vertex_color_is_srgb = true
-	_mesher.set_material_by_index(VoxelMesherCubes.MATERIAL_OPAQUE, surface)
+	if surface_material == null:
+		var surface: StandardMaterial3D = StandardMaterial3D.new()
+		surface.vertex_color_use_as_albedo = true
+		# La paleta está en sRGB, como los colores del inspector.
+		surface.vertex_color_is_srgb = true
+		surface_material = surface
+	_mesher.set_material_by_index(VoxelMesherCubes.MATERIAL_OPAQUE, surface_material)
 
 
 func _make_buffer(buffer_size: Vector3i) -> VoxelBuffer:

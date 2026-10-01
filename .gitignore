@@ -16,3 +16,7 @@ mono_crash.*.json
 .DS_Store
 Thumbs.db
 .directory
+
+# Locales de cada equipo
+override.cfg
+Godot_v*.x86_64

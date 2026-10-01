@@ -27,6 +27,7 @@ Juego 3D de supervivencia naval con humor, en primera persona. Construcción vox
 | Identificadores de código | Inglés (`ShipData`, `get_wave_height`) |
 | Comentarios y docs | Español |
 | Unidades de física | Metros, kilogramos, segundos |
+| Resolución | Base 1920×1080 con estiramiento `canvas_items`/`expand`: la UI se diseña en 1080p y escala; el 3D va a resolución nativa. Objetivos: 1080p y 1440p (Nobara) |
 | Tamaño de voxel | 0,5 m |
 | Grilla máxima del barco | 64 × 32 × 128 voxels (32 × 16 × 64 m) |
 
@@ -35,7 +36,7 @@ Juego 3D de supervivencia naval con humor, en primera persona. Construcción vox
 1. **La altura del mar sale de una sola fuente.** `ocean/ocean.gdshader` y `WaveSettings.get_wave_height(x, z, t)` en CPU usan la misma fórmula y los mismos parámetros (`ocean/default_waves.tres`). Si divergen, el barco flota sobre una ola que no se ve.
 2. **Toda edición del barco es un comando.** Nada escribe en `ShipData` directo; todo pasa por `ShipEditCommand` → `ShipEditor.apply()`. En coop, esos comandos viajan por red.
 3. **La simulación no conoce la presentación.** `ShipData`, la flotabilidad y la IA no referencian nodos visuales. La presentación escucha señales.
-4. **La flotabilidad usa volumen desplazado.** Cuenta el casco más el aire interior estanco (detectado por flood fill desde el exterior). Un compartimento con brecha se inunda y deja de flotar.
+4. **La flotabilidad usa volumen desplazado.** Cuenta el casco más el aire interior seco. Aire interior = mirando abajo y a los 4 lados se choca con casco (así un bote sin cubierta tiene interior). El agua entra por las aberturas sumergidas de cada compartimento y sube hasta el nivel de afuera.
 5. **El tiempo del mar es global.** CPU y GPU leen el mismo reloj (`Game.ocean_time`), nunca `Time` por separado.
 6. **Ningún binario sin LFS.** Revisa `.gitattributes` antes de agregar un tipo de archivo nuevo.
 7. **GDScript siempre tipado.** `var speed: float = 0.0`, funciones con tipo de retorno.
@@ -50,8 +51,9 @@ res://
 ├── addons/        # zylann.voxel (Voxel Tools, binarios por LFS)
 ├── ship/
 │   ├── data/      # ShipData, ShipEditCommand, ShipEditor, VoxelMaterial, MaterialCatalog (materials.tres)
-│   ├── mesh/      # ShipMesh: una malla por chunk con VoxelMesherCubes
-│   └── physics/   # flotabilidad, compartimentos, inundación
+│   ├── mesh/      # ShipMesh (malla por chunk con VoxelMesherCubes) y WaterMask (el mar no se dibuja en el aire seco)
+│   ├── physics/   # ShipHydrostatics (masa, compartimentos, inundación, celdas) y ShipBody (RigidBody3D)
+│   └── debug/     # vista F3: aire seco por compartimento y centro de gravedad
 ├── building/      # modo construcción, cursor, UI de bloques
 ├── sailing/       # velas, timón, viento
 ├── combat/        # cañones, proyectiles, daño a voxels
@@ -60,16 +62,18 @@ res://
 ├── world/         # zonas, islas, ruinas, astillero
 ├── ui/
 └── assets/        # modelos, texturas, audio (LFS)
-tests/             # chequeos headless (SceneTree), ver cabecera de cada uno
+tests/             # chequeos headless; corren dentro de tests/run.tscn
 ```
 
 Las carpetas se crean cuando una fase las usa por primera vez (git no versiona carpetas vacías).
 
 Verificación sin editor: `../Godot_v4.7.2-stable_linux.x86_64 --headless --path . --import` (importa y reporta errores de scripts). Los `*.gd.uid` que genera Godot se commitean.
 
-Tests: `../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . -s res://tests/<test>.gd` con `test_ocean.gd` y `test_ship.gd` (salen con código ≠ 0 si fallan).
+Tests: `../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- <test>` con `test_ocean`, `test_ship` y `test_hydro` (salen con código ≠ 0 si fallan). No usar `-s`: esos scripts compilan antes que los autoloads y cualquier clase que use `Game` falla. `run.tscn` también acepta una ruta `res://` (scripts de captura).
 
-Render (headless no compila shaders): correr la escena con un script `-s` que guarde `root.get_texture().get_image()`. **En el MacPro (Ivy Bridge) siempre a `--resolution 480x270`**; el Nobara aguanta resoluciones altas.
+Equipos: el **Nobara** (2560×1440) es donde se mide rendimiento real (`--print-fps`). El **MacPro** se trabaja solo en baja resolución: su `override.cfg` local (ignorado por git) fuerza la ventana a 480×270. Nunca cambiar `viewport_width/height` para achicar la ventana: es la resolución base del juego. F3 = depuración del barco.
+
+Render (headless no compila shaders): correr `run.tscn -- res://<script>.gd` sin `--headless` y guardar `get_viewport().get_texture().get_image()`. **En el MacPro (Ivy Bridge) siempre a `--resolution 480x270`**; el Nobara aguanta resoluciones altas.
 
 Assets: se buscan en el Godot Asset Store (store.godotengine.org) y Leo elige antes de integrar. Descartado: Godot-MCP (exige Godot .NET y backend en la nube).
 
@@ -100,7 +104,7 @@ WaveSettings ──► get_wave_height() ──► Buoyancy ──► RigidBody3
 | Océano Gerstner | Hecho (fase 1): 8 ondas, falda de horizonte, flotabilidad por celdas |
 | Datos voxel y mesher | Hecho (fase 2): ShipData + comandos + VoxelMesherCubes; 0,19 ms por chunk lleno |
 | Modo construcción | Pendiente |
-| Flotabilidad e inundación | Pendiente |
+| Flotabilidad e inundación | Hecho (fase 4): celdas de 1 m, compartimentos con aberturas, inundación por vasos comunicantes, máscara de agua |
 | Navegación | Pendiente |
 | Cañones y daño | Pendiente |
 | Abisales | Pendiente |
@@ -117,7 +121,7 @@ Detalle y criterios de "terminado" en `docs/plan.md`.
 - [x] Fase 1 — Océano y objeto flotante (falta probar a mano: editar `default_waves.tres` en el inspector remoto con el juego corriendo)
 - [x] Fase 2 — Datos voxel y mesher
 - [ ] Fase 3 — Modo construcción
-- [ ] Fase 4 — Flotabilidad desde voxels
+- [x] Fase 4 — Flotabilidad desde voxels
 - [ ] Fase 5 — Navegación
 - [ ] Fase 6 — Cañones y daño
 - [ ] Fase 7 — Primer Abisal
@@ -134,6 +138,10 @@ Detalle y criterios de "terminado" en `docs/plan.md`.
 | Voxel Tools GDExtension "poco probada" (aviso del autor) | Solo usamos `VoxelBuffer` + `VoxelMesherCubes`, aislados en `ShipMesh`. Si falla, reemplazar ese archivo por un mesher propio; `ShipData` no depende del addon |
 | Remallado en el hilo principal | Medido: 0,15–0,19 ms chunk realista, 6,6 ms peor caso (MacPro). Pasar a `WorkerThreadPool` si una edición grande se nota |
 | Caminar sobre una cubierta que se mueve y cabecea | El controlador FPS hereda la velocidad del barco; se resuelve en fase 3/5 |
+| Recalcular la hidrostática tras una edición: 80 ms (casco de prueba, MacPro) | Antes de la fase 3: recálculo incremental (masa por voxel, interior solo en la zona tocada) o diferirlo hasta soltar la herramienta |
+| Flotabilidad: 2,3 ms por paso físico (casco de prueba, MacPro) | Columnas de 2 m para muestrear el mar; agrandarlas o bajar INVERT_STEPS si hay varios barcos |
+| Barco sin forma de colisión | Jolt no acepta mallas cóncavas en cuerpos dinámicos; cajas por greedy de voxels cuando el jugador camine encima (fase 3/5) |
+| Máscara de agua: un barco por océano | Arreglo de transformaciones + atlas 3D cuando haya más barcos (Saqueadores, fase 10) |
 | Reloj del mar a 60 Hz (física) | En pantallas de más Hz las olas saltan levemente; interpolar si se nota |
 | FFT requiere leer altura desde GPU | Gerstner hasta tener la física estable; FFT con readback asíncrono después |
 | Muchos puntos de flotabilidad en barcos grandes | Muestreo en celdas de 1 m (2×2×2 voxels) y límite de puntos por barco |
@@ -147,4 +155,4 @@ Detalle y criterios de "terminado" en `docs/plan.md`.
 
 ---
 
-Última actualización: Sesión 2 (2026-10-01) — Fases 0, 1 y 2: proyecto Godot 4.7.2 + Jolt, océano Gerstner propio con test, cubo flotante. Decidido: primera persona, Voxel Tools a prueba, Quality FPC. Fase 2: Voxel Tools aprobado (VoxelMesherCubes), ShipData/comandos/ShipMesh con test. Siguiente: Fase 3.
+Última actualización: Sesión 2 (2026-10-01) — Fases 0, 1, 2 y 4: proyecto Godot 4.7.2 + Jolt, océano Gerstner propio con test, cubo flotante. Decidido: primera persona, Voxel Tools a prueba, Quality FPC. Fase 2: Voxel Tools aprobado (VoxelMesherCubes), ShipData/comandos/ShipMesh con test. Fase 4 antes que la 3 (pedido de Leo): barco que flota, escora, se inunda por brechas y no muestra agua adentro. Siguiente: Fase 3.

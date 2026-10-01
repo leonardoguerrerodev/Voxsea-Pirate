@@ -20,6 +20,7 @@ Cada fase deja algo que se puede probar. Una fase está terminada cuando cumple 
 - [x] `WaveSettings.get_wave_height(x, z, t)` en GDScript con la misma fórmula (invierte el desplazamiento horizontal).
 - [x] Cubo `RigidBody3D` con 8 puntos de flotabilidad (centros de sus 8 celdas).
 - [x] Color por profundidad, espuma en crestas y en contacto, reflejo del cielo.
+- [x] Pasada visual: refracción con absorción por canal (Beer-Lambert), espuma por Jacobiano en manchas, franja de contacto animada (ideas de emilje/godot-water-shader y krautdev/GodotOceanWaves).
 - [x] Test `tests/test_ocean.gd`: inversión de altura y cubo a nivel de la ola.
 
 **Terminado cuando:** el cubo sigue las olas sin atravesarlas ni flotar por encima, y cambiar `WaveSettings` en el inspector cambia el mar y el comportamiento del cubo a la vez.
@@ -51,12 +52,14 @@ Cada fase deja algo que se puede probar. Una fase está terminada cuando cumple 
 
 ## Fase 4 — Flotabilidad desde voxels
 
-- [ ] Masa y centro de gravedad calculados desde los materiales.
-- [ ] Flood fill desde el exterior para detectar aire interior estanco.
-- [ ] Puntos de flotabilidad en celdas de 1 m (2×2×2 voxels).
-- [ ] Amortiguación lineal y angular en el agua.
-- [ ] Inundación: un compartimento con brecha bajo el agua se llena con el tiempo.
-- [ ] Visualización de depuración: línea de flotación, centro de gravedad, compartimentos.
+- [x] Masa, centro de gravedad e inercia calculados desde los materiales (`ShipHydrostatics`), entregados al `RigidBody3D` como valores propios.
+- [x] Aire interior: mirando abajo y a los 4 lados se choca con casco (un bote sin cubierta también tiene interior). Compartimentos = grupos conectados de aire interior; aberturas = voxels que tocan aire exterior.
+- [x] Puntos de flotabilidad en celdas de 1 m (2×2×2 voxels); la altura del mar se muestrea por columnas de 2 m.
+- [x] Amortiguación lineal y angular en el agua (`water_drag` por kilo desplazado).
+- [x] Inundación: por cada abertura sumergida entran `flood_rate` voxels/s, de abajo hacia arriba, hasta el nivel del mar de afuera. Tapar el agujero no achica.
+- [x] Máscara de agua: el aire seco se sube como textura 3D y el shader del mar no se dibuja ahí (funciona con la cámara dentro del barco).
+- [x] Visualización de depuración (F3): aire seco por compartimento (un color cada uno) y centro de gravedad. La línea de flotación ya se ve en el mar.
+- [x] Test `tests/test_hydro.gd` con los cuatro criterios en mar calmo.
 
 **Terminado cuando:** un casco cerrado flota, una balsa plana flota baja, un barco con peso arriba escora, y quitar voxels bajo la línea de flotación hunde ese lado.
 
@@ -68,6 +71,7 @@ Cada fase deja algo que se puede probar. Una fase está terminada cuando cumple 
 - [ ] Resistencia del casco según su forma frontal.
 - [ ] Ancla.
 - [ ] Caminar sobre la cubierta en movimiento en primera persona y tomar el timón.
+- [ ] Estela: espuma persistente que crece y se desvanece (dos texturas alternadas que siguen a la cámara, idea de emilje/godot-water-shader).
 
 **Terminado cuando:** un barco con vela navega, vira contra el viento en zigzag, y uno más largo gira más lento que uno corto.
 
@@ -127,7 +131,7 @@ Una isla, el astillero y aguas someras. Construir, zarpar, pescar, pelear con el
 
 ## Fuera de alcance por ahora
 
-- Océano FFT (se evalúa después de la rebanada vertical).
+- Océano FFT (se evalúa después de la rebanada vertical). Candidatos: [2Retr0/GodotOceanWaves](https://github.com/2Retr0/GodotOceanWaves) (FFT por espectros JONSWAP/TMA, espuma por Jacobiano, rocío; solo render, Godot 4.3) y su fork [krautdev/GodotOceanWaves](https://github.com/krautdev/GodotOceanWaves) (agrega `get_height` en CPU con lectura síncrona de GPU). Opción preferida: Gerstner sigue siendo la física y FFT agrega detalle visual encima (regla 1 intacta); la alternativa es leer la altura con la lectura asíncrona de GPU de Godot 4.4+.
 - Mundo procedural infinito.
 - Tripulación controlada por IA.
 - Versión móvil.

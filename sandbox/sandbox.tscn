@@ -7,6 +7,9 @@
 [ext_resource type="Script" path="res://ocean/buoyant_body.gd" id="5_buoy"]
 [ext_resource type="Script" path="res://sandbox/test_ship.gd" id="6_ship"]
 [ext_resource type="Resource" path="res://ship/data/materials.tres" id="7_mats"]
+[ext_resource type="Script" path="res://ship/mesh/ship_mesh.gd" id="8_mesh"]
+[ext_resource type="Script" path="res://ship/mesh/water_mask.gd" id="9_mask"]
+[ext_resource type="Script" path="res://ship/debug/ship_debug.gd" id="10_debug"]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
 ground_bottom_color = Color(0.42, 0.48, 0.54, 1)
@@ -38,6 +41,23 @@ size = Vector2(8000, 8000)
 render_priority = -1
 shader = ExtResource("3_shader")
 shader_parameter/inner_radius = 250.0
+
+[sub_resource type="StandardMaterial3D" id="dry_air_mat"]
+transparency = 1
+no_depth_test = true
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 0.35)
+
+[sub_resource type="StandardMaterial3D" id="com_mat"]
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(1, 0.1, 0.1, 1)
+
+[sub_resource type="SphereMesh" id="com_mesh"]
+material = SubResource("com_mat")
+radius = 0.4
+height = 0.8
 
 [sub_resource type="BoxShape3D" id="box_shape"]
 
@@ -86,7 +106,33 @@ shape = SubResource("box_shape")
 [node name="Mesh" type="MeshInstance3D" parent="FloatingCube"]
 mesh = SubResource("box_mesh")
 
-[node name="TestShip" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, -2, -12)
+
+[node name="TestShip" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -12)
+can_sleep = false
 script = ExtResource("6_ship")
+waves = ExtResource("4_waves")
 catalog = ExtResource("7_mats")
+
+[node name="Hull" type="Node3D" parent="TestShip" node_paths=PackedStringArray("ship")]
+script = ExtResource("8_mesh")
+catalog = ExtResource("7_mats")
+ship = NodePath("..")
+
+[node name="WaterMask" type="Node" parent="TestShip" node_paths=PackedStringArray("ship", "ocean")]
+script = ExtResource("9_mask")
+ship = NodePath("..")
+ocean = NodePath("../../Ocean")
+
+[node name="Debug" type="Node3D" parent="TestShip" node_paths=PackedStringArray("ship")]
+script = ExtResource("10_debug")
+ship = NodePath("..")
+
+[node name="DryAir" type="Node3D" parent="TestShip/Debug" node_paths=PackedStringArray("ship")]
+script = ExtResource("8_mesh")
+ship = NodePath("../..")
+show_dry_air = true
+surface_material = SubResource("dry_air_mat")
+
+[node name="CenterOfMass" type="MeshInstance3D" parent="TestShip/Debug"]
+mesh = SubResource("com_mesh")

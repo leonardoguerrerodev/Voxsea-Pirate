@@ -6,7 +6,7 @@ El barco es tu personaje. No mejoras al pirata: mejoras el barco.
 
 ## Estado
 
-Fases 0 a 2 listas: proyecto base, océano con objeto flotante y barco voxel. El concepto, el lore y el plan están en `docs/`.
+Fases 0, 1, 2 y 4 listas: proyecto base, océano, barco voxel y su flotabilidad e inundación. El concepto, el lore y el plan están en `docs/`.
 
 ## Documentación
 
