@@ -40,13 +40,19 @@ Cada fase deja algo que se puede probar. Una fase está terminada cuando cumple 
 
 ## Fase 3 — Modo construcción
 
-- [ ] Jugador en primera persona (Quality First Person Controller) para recorrer el astillero.
-- [ ] Cursor 3D que apunta a la cara del voxel bajo la mira.
-- [ ] Colocar y quitar voxels; elegir material.
-- [ ] Simetría espejo (babor/estribor).
-- [ ] Deshacer y rehacer con la pila de comandos.
-- [ ] Herramientas de relleno: línea y caja.
-- [ ] Suavizado visual de bordes (surface nets o biselado en el mesher).
+- [x] Jugador en primera persona (Quality First Person Controller, `addons/fpc`), hijo del barco: camina sobre la cubierta en movimiento sin resbalar (`test_deck`).
+- [x] Colisión detallada del barco: `ShipDeck`, cinemático, una forma cóncava por chunk desde la misma malla (idea de gameidea.org).
+- [x] Dique seco: B congela el barco derecho; al salir vuelve a flotar y recalcula su hidrostática una vez.
+- [x] Cursor 3D que apunta a la cara del voxel bajo la mira (rayo contra la cubierta) y vista previa translúcida.
+- [x] Colocar (clic izq.) y quitar (clic der.) voxels; elegir material (1-6).
+- [x] Simetría espejo babor/estribor (M).
+- [x] Deshacer y rehacer con la pila de comandos (Ctrl+Z / Ctrl+Y).
+- [x] Herramientas de relleno: línea y caja arrastrando (T cambia de herramienta).
+- [x] Suavizado visual de bordes: `hull.gdshader` bisela solo las aristas reales mirando los vecinos en la grilla.
+- [x] Barco de prueba con cubierta, borda de 1 m, escotilla y escalera de voxels a la bodega del compartimento central.
+- [x] Jugador: sube solo escalones de un voxel, camina hacia la cámara aunque el barco gire, reaparece si cae al agua.
+- [x] UI temporal: ayuda de controles (F1) y menú de pausa (Esc).
+- [x] Tests `test_build`, `test_deck` y `test_step`.
 
 **Terminado cuando:** puedes construir un casco de bote en menos de 5 minutos y deshacer cada paso.
 

@@ -3,8 +3,9 @@ extends RigidBody3D
 ## El barco como cuerpo rígido (simulación, regla 3). Masa, centro de gravedad e
 ## inercia salen de los voxels; flota por celdas de 1 m y se inunda por sus
 ## aberturas sumergidas. `data` se asigna antes de entrar al árbol.
-# ponytail: sin forma de colisión todavía (Jolt no acepta mallas cóncavas en
-# cuerpos dinámicos). Cajas por greedy de voxels cuando el jugador camine encima.
+## Congelado (`freeze`) está en dique seco: no flota ni recalcula su hidrostática
+## hasta soltarlo (así construir no paga ese recálculo por cada voxel).
+## La colisión detallada va en un ShipDeck hijo; este cuerpo no tiene formas.
 
 const WATER_DENSITY: float = 1000.0
 ## Cada cuánto avanza la inundación (s). Es lenta: no hace falta cada paso físico.
@@ -24,6 +25,13 @@ var _dirty: bool = false
 var _flood_time: float = 0.0
 
 
+func _init() -> void:
+	# Amortiguamiento de giro del agua: sin esto un casco liviano sigue cada
+	# pendiente del mar (medido: 20° → 7° de escora máx. con 3). La escena puede
+	# cambiarlo.
+	angular_damp = 3.0
+
+
 func _enter_tree() -> void:
 	if hydro:
 		return
@@ -33,6 +41,8 @@ func _enter_tree() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if freeze:
+		return
 	if _dirty:
 		_dirty = false
 		_rebuild()

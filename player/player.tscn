@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://addons/fpc/character.tscn" id="1_base"]
+[ext_resource type="Script" path="res://player/player.gd" id="2_player"]
+
+[node name="Player" instance=ExtResource("1_base")]
+script = ExtResource("2_player")
+platform_floor_layers = 0
+pausing_enabled = false
+controls = {
+"BACKWARD": "move_back",
+"CROUCH": "crouch",
+"FORWARD": "move_forward",
+"JUMP": "jump",
+"LEFT": "move_left",
+"PAUSE": "pause",
+"RIGHT": "move_right",
+"SPRINT": "sprint"
+}

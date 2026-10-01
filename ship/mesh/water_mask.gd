@@ -23,23 +23,8 @@ func _process(_delta: float) -> void:
 
 
 func _upload(material: ShaderMaterial) -> void:
-	# ponytail: resube toda la grilla en cada cambio (un barco máximo son 128
-	# capas de 64×32). Subir solo las capas tocadas si pesa al inundarse.
-	var air: ShipData = ship.hydro.dry_air
-	var s: Vector3i = air.size
-	var layers: Array[Image] = []
-	var layer: PackedByteArray = PackedByteArray()
-	layer.resize(s.x * s.y)
-	for z: int in s.z:
-		for x: int in s.x:
-			var base: int = x * s.y + z * s.y * s.x
-			for y: int in s.y:
-				layer[y * s.x + x] = 255 if air.voxels[base + y] != 0 else 0
-		layers.append(Image.create_from_data(s.x, s.y, false, Image.FORMAT_R8, layer))
-	if _texture == null:
-		_texture = ImageTexture3D.new()
-		_texture.create(Image.FORMAT_R8, s.x, s.y, s.z, false, layers)
+	var fresh: bool = _texture == null
+	_texture = VoxelTexture.upload(_texture, ship.hydro.dry_air)
+	if fresh:
 		material.set_shader_parameter("ship_dry_air", _texture)
-		material.set_shader_parameter("ship_size", s)
-	else:
-		_texture.update(layers)
+		material.set_shader_parameter("ship_size", ship.hydro.dry_air.size)
