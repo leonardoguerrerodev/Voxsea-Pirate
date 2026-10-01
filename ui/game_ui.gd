@@ -15,6 +15,8 @@ Tab inventario (clic der. colocar) · E abrir · F recoger · rueda girar · Q b
 @export var ocean: OceanSurface
 ## Recibe los objetos que se eligen para colocar desde el inventario.
 @export var placer: DecorPlacer
+## Botones Guardar y Salir (guarda antes de salir).
+@export var save: SaveGame
 
 var show_fps: bool = false
 
@@ -57,8 +59,9 @@ func _ready() -> void:
 	_style(title, 32)
 	box.add_child(title)
 	box.add_child(_button("Continuar", func() -> void: _set_paused(false)))
+	box.add_child(_button("Guardar", func() -> void: save.save_game()))
 	box.add_child(_button("Dev", _toggle_dev))
-	box.add_child(_button("Salir", func() -> void: get_tree().quit()))
+	box.add_child(_button("Salir", func() -> void: save.save_and_quit()))
 	var margin: MarginContainer = MarginContainer.new()
 	for side: String in ["left", "right", "top", "bottom"]:
 		margin.add_theme_constant_override("margin_" + side, 24)

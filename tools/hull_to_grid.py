@@ -33,6 +33,9 @@ MATERIALS = {
     "alquitran": ("tar.jpg", (1.0, 1.0, 1.0)),
     "franja": ("wood_teal.jpg", (1.0, 1.0, 1.0)),
     "oscura": ("wood_dark.jpg", (0.7, 0.7, 0.7)),
+    # Rejilla de la escotilla: se borra de la malla (queda el hueco); la física
+    # sí la cuenta, así la bodega sigue siendo aire estanco.
+    "rejilla": ("wood_dark.jpg", (0.7, 0.7, 0.7)),
 }
 TILE = 1.5
 
@@ -102,7 +105,8 @@ if faces:
     deck = heights[order][np.searchsorted(np.cumsum(areas[order]), areas.sum() / 2)]
     lift = (np.ceil(deck / VOXEL) * VOXEL - 0.01 - deck) % VOXEL
     hull.data.transform(Matrix.Translation((0, 0, lift)))
-    print("cubierta a %.2f m, subida %.2f m" % (deck + lift, lift))
+    deck += lift
+    print("cubierta a %.2f m, subida %.2f m" % (deck, lift))
 
 # Grilla: con la malla completa, antes de reducirla. Ejes de Godot: x = x,
 # y = z de Blender, z = -y de Blender (después de la traslación, -y es negativo:
@@ -154,6 +158,22 @@ bm = bmesh.new()
 bm.from_mesh(hull.data)
 bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.005)
 bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+# Escotilla abierta: se borran la rejilla y la cubierta que queda bajo ella.
+names = [m.name for m in hull.data.materials]
+if "rejilla" in names:
+    grate = names.index("rejilla")
+    deck_index = names.index("cubierta")
+    grate_faces = [f for f in bm.faces if f.material_index == grate]
+    corners = np.array([v.co[:] for f in grate_faces for v in f.verts])
+    lo, hi = corners.min(0), corners.max(0)
+    cut = [f for f in grate_faces]
+    for f in bm.faces:
+        c = f.calc_center_median()
+        if f.material_index == deck_index and lo[0] < c.x < hi[0] and lo[1] < c.y < hi[1] and abs(c.z - deck) < 0.6:
+            cut.append(f)
+    bmesh.ops.delete(bm, geom=cut, context="FACES")
+    # En ejes de Godot: x igual, z = -y de Blender, y = z de Blender.
+    print("escotilla x %.2f..%.2f z %.2f..%.2f cubierta y %.2f" % (lo[0], hi[0], -hi[1], -lo[1], deck))
 bm.to_mesh(hull.data)
 bm.free()
 # Coordenadas de textura: proyección de caja en metros, igual en todo el barco.

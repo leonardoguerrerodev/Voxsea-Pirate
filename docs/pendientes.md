@@ -7,8 +7,8 @@ Orden sugerido: **guardado → escotilla y bodega → combate** (el combate nece
 ## Ahora (deuda del barco actual)
 
 - [ ] Medir FPS en el Nobara a 1440p con cada interruptor de menú dev → Gráficos (Leo)
-- [ ] Guardar y cargar partida: inventario y objetos colocados se pierden al cerrar
-- [ ] Escotilla abierta y escalera para bajar a la bodega
+- [x] Guardar y cargar partida (`user://partida.json`: inventario, objetos colocados, barco, jugador, hora; al salir y desde la pausa)
+- [x] Escotilla abierta, escalera empinada y piso de bodega (`HoldInterior`, con farol)
 - [ ] Mástil modelado (mástil + verga + cofa) con la vela atada a la verga; hoy es un cilindro
 - [ ] Colgar objetos en paredes (campana, repisa, soporte): hoy solo se apoyan en pisos
 - [ ] Estela del barco al avanzar (espuma detrás y a los costados)

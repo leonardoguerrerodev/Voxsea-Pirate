@@ -8,23 +8,23 @@ Leonardo (Obsi). Desarrollador solo, autodidacta, estudiante de Ingeniería en I
 
 ## 📍 Estado actual y cómo seguir (2026-10-01)
 
-Hecho: océano Gerstner, barco de casco fijo modelado (balandra de 20 m) que flota, navega y se camina, navegación a vela, coordenadas de mapa, brújula, ciclo día/noche (Sky3D), clima conectado a viento y olas, y menú dev (con interruptores gráficos: tonemapping/AgX, SSR, SSAO, SSIL, SDFGI, glow, niebla volumétrica), mar con ondas finas, destellos del sol, luz en las crestas y claridad ajustable, 27 props importados con íconos (cofre, caldero, estufa y barril armados con su parte móvil; 3 cañones), inventario (Tab) y decoración: colocar objetos del inventario en el barco (con masa), abrirlos (E) y recogerlos (F). 10 tests en verde. Las fases 2–4 (barco voxel construible) se reemplazaron el 2026-10-01: ver `docs/decisiones.md`; el código voxel queda en el commit `fac9d9d`.
+Hecho: océano Gerstner, barco de casco fijo modelado (balandra de 20 m) que flota, navega y se camina, navegación a vela, coordenadas de mapa, brújula, ciclo día/noche (Sky3D), clima conectado a viento y olas, y menú dev (con interruptores gráficos: tonemapping/AgX, SSR, SSAO, SSIL, SDFGI, glow, niebla volumétrica), mar con ondas finas, destellos del sol, luz en las crestas y claridad ajustable, 27 props importados con íconos (cofre, caldero, estufa y barril armados con su parte móvil; 3 cañones), inventario (Tab) y decoración: colocar objetos del inventario en el barco (con masa), abrirlos (E) y recogerlos (F); guardado de partida; bodega jugable (escotilla, escalera, piso, farol). 12 tests en verde. Las fases 2–4 (barco voxel construible) se reemplazaron el 2026-10-01: ver `docs/decisiones.md`; el código voxel queda en el commit `fac9d9d`.
 
 **Retomar en otro equipo (p. ej. el Nobara, 2560×1440):**
 1. `git lfs install` y clonar `leonardoguerrerodev/Voxsea-Pirate` dentro de `~/Documentos/!GitHub/!Obsedium/`.
 2. Poner el ejecutable de **Godot 4.7.2 estable (estándar, no .NET)** en `!Obsedium/Godot_v4.7.2-stable_linux.x86_64` (los comandos de este archivo usan `../` desde el repo). Opcional: symlink dentro del repo (ignorado por git).
 3. No crear `override.cfg`: ese archivo achica la ventana solo en el Mac.
 4. Importar una vez: `../Godot_v4.7.2-stable_linux.x86_64 --headless --path . --import`.
-5. Correr los tests (ver "Tests" abajo): los 10 deben dar OK.
+5. Correr los tests (ver "Tests" abajo): los 12 deben dar OK.
 6. Jugar y medir: `../Godot_v4.7.2-stable_linux.x86_64 --path . --print-fps`.
 
 **Cascos (2026-10-01):** fijos y modelados, estilo Sea of Thieves. `tools/hull_to_grid.py` (Blender) toma un `.glb` (Tripo), lo orienta (proa a -z), escala, simetriza, alinea la cubierta con un borde de 0,5 m, lo pinta por pieza (`<casco>.materials.json`, texturas en `assets/textures/`) y escribe la malla + la ocupación `.grid` (1 = casco, 2 = aire interior). `HullProfile` calcula de ahí, una vez, masa, inercia y celdas de flotación; en juego no hay grilla. La colisión sale de la malla (`HullCollision`) y las piezas son nodos `ShipPart`. Los `.glb` crudos de Tripo viven en `models/` (fuera de git). Plan ejecutado: `docs/plan_sin_voxels.md`.
 
 **Pendientes inmediatos:**
 - Medir FPS en el Nobara a 1440p con cada interruptor de menú dev → Gráficos (base, SSR, SSAO, SSIL, SDFGI, AgX). El mar es transparente: SSR probablemente no lo refleja; evaluar reflejos propios del mar después.
-- Balandra: abrir la escotilla y una escalera a la bodega; mástiles con modelo (verga, mástiles y cofa de la primera hoja de utilería).
+- Balandra: mástiles con modelo (verga, mástiles y cofa de la primera hoja de utilería).
 - Props: un material por prop (Tripo los entregó en una sola malla); los de varios materiales (cofre con fierro, botella de vidrio) piden reexportar "por piezas" o pintar a mano. Falta la tela de la hamaca (plano curvo con lona, como la vela).
-- Inventario: falta de dónde salen los objetos (pesca, cocina, botín) y guardar la partida (lo colocado y el inventario se pierden al salir).
+- Inventario: falta de dónde salen los objetos (pesca, cocina, botín).
 - Cañones: hoy son decoración (tubo y cureña fundidos en una malla). Para disparar y apuntar hace falta el tubo aparte: pasar la hoja de piezas de cañones por Tripo "por piezas".
 - Pruebas a mano que ningún test cubre: sensación de navegación (`ShipRig.sail_scale`), brillo de la noche, editar `default_waves.tres` en el inspector remoto (fase 1).
 - Fase 5: falta la estela (espuma persistente).
@@ -75,12 +75,13 @@ Juego 3D de supervivencia naval con humor, en primera persona. Barcos de casco f
 
 ```
 res://
-├── core/          # autoloads: Game (reloj del mar, hora del día), Events
+├── core/          # autoloads: Game (reloj del mar, hora del día), Events; SaveGame (partida en user://partida.json)
 ├── sandbox/       # escena de pruebas (escena principal por ahora) y cámara orbital
 ├── ocean/         # WaveSettings (get_wave_height), shader Gerstner, OceanSurface, BuoyantBody
 ├── addons/        # fpc (Quality First Person Controller, MIT) y sky_3d (Sky3D, MIT); código ajeno, sin tipado estricto
 ├── ship/
 │   ├── hull/      # HullProfile (masa, inercia, celdas de flotación desde la ocupación .grid)
+│   ├── hold/      # HoldInterior: piso de bodega desde el aire interior, escalera de la escotilla, farol
 │   ├── mesh/      # WaterMask (el mar no se dibuja en la bodega)
 │   ├── physics/   # ShipBody (RigidBody3D) y HullCollision (colisión desde la malla)
 │   └── debug/     # vista F3: centro de gravedad
@@ -103,7 +104,7 @@ Las carpetas se crean cuando una fase las usa por primera vez (git no versiona c
 
 Verificación sin editor: `../Godot_v4.7.2-stable_linux.x86_64 --headless --path . --import` (importa y reporta errores de scripts). Los `*.gd.uid` que genera Godot se commitean.
 
-Tests: `../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- <test>` con `test_ocean`, `test_hull`, `test_deck`, `test_step`, `test_sailing`, `test_map`, `test_compass`, `test_weather`, `test_inventory` y `test_decor` (salen con código ≠ 0 si fallan). No usar `-s`: esos scripts compilan antes que los autoloads y cualquier clase que use `Game` falla. `run.tscn` también acepta una ruta `res://` (scripts de captura).
+Tests: `../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- <test>` con `test_ocean`, `test_hull`, `test_deck`, `test_step`, `test_sailing`, `test_map`, `test_compass`, `test_weather`, `test_inventory`, `test_decor`, `test_save` y `test_hold` (salen con código ≠ 0 si fallan). No usar `-s`: esos scripts compilan antes que los autoloads y cualquier clase que use `Game` falla. `run.tscn` también acepta una ruta `res://` (scripts de captura).
 
 Equipos: el **Nobara** (2560×1440) es donde se mide rendimiento real (`--print-fps`). El **MacPro** se trabaja solo en baja resolución: su `override.cfg` local (ignorado por git) fuerza la ventana a 480×270. Nunca cambiar `viewport_width/height` para achicar la ventana: es la resolución base del juego. F3 = centro de gravedad del barco.
 
@@ -182,4 +183,4 @@ Detalle y criterios de "terminado" en `docs/plan.md`; lista viva de lo que falta
 
 ---
 
-Última actualización: Sesión 3 (2026-10-01, Nobara) — Sin voxels en juego (casco fijo con `HullProfile`, `HullCollision`, `ShipPart`); mar más translúcido con ondas finas, destellos y luz en las crestas; paleta de texturas y balandra repintada; 27 props (con piezas armadas y cañones) e íconos; inventario (Tab) y decoración; 10 tests en verde. Siguiente: medir FPS, escotilla y bodega, guardado; después combate (con cañones por piezas).
+Última actualización: Sesión 3 (2026-10-01, Nobara) — Sin voxels en juego (casco fijo con `HullProfile`, `HullCollision`, `ShipPart`); mar más translúcido con ondas finas, destellos y luz en las crestas; paleta de texturas y balandra repintada; 27 props (con piezas armadas y cañones) e íconos; inventario (Tab) y decoración; 10 tests en verde. Guardado y bodega jugable; 12 tests. Siguiente: combate (con cañones por piezas).

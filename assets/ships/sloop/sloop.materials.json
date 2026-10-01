@@ -6,7 +6,7 @@
     "3": "franja",
     "4": "borda", "10": "borda", "11": "borda", "13": "borda", "16": "borda",
     "26": "borda", "27": "borda", "28": "borda", "29": "borda", "30": "borda", "31": "borda",
-    "5": "oscura", "17": "oscura", "19": "oscura", "20": "oscura", "21": "oscura",
-    "22": "oscura", "23": "oscura", "24": "oscura", "25": "oscura"
+    "5": "oscura", "17": "oscura",
+    "19": "rejilla", "20": "rejilla", "21": "rejilla", "22": "rejilla", "23": "rejilla", "25": "rejilla", "24": "borda"
   }
 }
