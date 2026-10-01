@@ -143,7 +143,7 @@ WaveSettings ──► get_wave_height() ──► flotación ┘   ShipRig (vel
 
 ## 🗺️ Roadmap
 
-Detalle y criterios de "terminado" en `docs/plan.md`.
+Detalle y criterios de "terminado" en `docs/plan.md`; lista viva de lo que falta en `docs/pendientes.md`.
 
 - [x] Fase 0 — Proyecto base (falta confirmar a mano que la cámara orbita)
 - [x] Fase 1 — Océano y objeto flotante (falta probar a mano: editar `default_waves.tres` en el inspector remoto con el juego corriendo)
