@@ -76,8 +76,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		if event.is_action_pressed("pick_up"):
 			_pick_up(piece)
-		elif piece.model is OpenableProp:
-			(piece.model as OpenableProp).toggle()
+		elif not (piece.model.has_method("toggle") and piece.model.call("toggle")):
+			return  # no se abre ni se prende (el timón): E queda para HelmControl
 		get_viewport().set_input_as_handled()
 
 
@@ -110,7 +110,8 @@ func _aimed_piece() -> DecorPiece:
 
 func _aim() -> Dictionary:
 	var from: Vector3 = camera.global_position
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, from - camera.global_basis.z * REACH)
+	# En tercera persona la cámara va detrás: el alcance se cuenta desde la cabeza.
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, from - camera.global_basis.z * (REACH + player.camera_reach))
 	query.exclude = [player.get_rid()]
 	return camera.get_world_3d().direct_space_state.intersect_ray(query)
 

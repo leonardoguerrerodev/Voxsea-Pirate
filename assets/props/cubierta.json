@@ -1,0 +1,9 @@
+{
+  "source": "../../models/props/cubierta.glb",
+  "out": ".",
+  "cluster": 0.005,
+  "props": [
+    {"piece": 0, "name": "cabrestante", "size": 1.32},
+    {"piece": 1, "name": "caja_balas", "size": 0.8}
+  ]
+}

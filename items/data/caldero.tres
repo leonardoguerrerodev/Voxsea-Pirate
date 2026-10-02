@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://items/item_data.gd" id="1_item"]
 [ext_resource type="Texture2D" path="res://assets/icons/caldero.png" id="2_icon"]
-[ext_resource type="PackedScene" path="res://props/caldero.tscn" id="3_prop"]
+[ext_resource type="PackedScene" path="res://assets/props/caldero.glb" id="3_prop"]
 
 [resource]
 script = ExtResource("1_item")

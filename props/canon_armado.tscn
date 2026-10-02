@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://props/openable_prop.gd" id="1_prop"]
+[ext_resource type="PackedScene" path="res://assets/props/canon_cureña.glb" id="2_base"]
+[ext_resource type="PackedScene" path="res://assets/props/canon_tubo.glb" id="3_part"]
+
+[node name="canon_armado" type="Node3D"]
+script = ExtResource("1_prop")
+base = ExtResource("2_base")
+part = ExtResource("3_part")
+part_offset = Vector3(-0.11, 0.51, 0)
+hinge = Vector3(0, 0.7, 0)
+hinge_axis = Vector3(0, 0, 1)
+movable = false

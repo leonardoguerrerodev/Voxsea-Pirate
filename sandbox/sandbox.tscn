@@ -1,53 +1,190 @@
-[gd_scene format=3]
+[gd_scene format=4 uid="uid://dtjfp1d2ce10h"]
 
-[ext_resource type="Script" path="res://ocean/ocean_surface.gd" id="2_ocean"]
-[ext_resource type="Shader" path="res://ocean/ocean.gdshader" id="3_shader"]
-[ext_resource type="Resource" path="res://ocean/default_waves.tres" id="4_waves"]
-[ext_resource type="Script" path="res://ocean/buoyant_body.gd" id="5_buoy"]
-[ext_resource type="Script" path="res://ship/physics/ship_body.gd" id="6_ship"]
-[ext_resource type="PackedScene" path="res://assets/ships/sloop/sloop.glb" id="22_sloop"]
-[ext_resource type="Script" path="res://ship/mesh/water_mask.gd" id="9_mask"]
-[ext_resource type="Script" path="res://ship/debug/ship_debug.gd" id="10_debug"]
+[ext_resource type="Shader" uid="uid://cvd0x7lon1ur6" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="1_g1egj"]
+[ext_resource type="Texture2D" uid="uid://cfqk60lpl5ljv" path="res://addons/sky_3d/assets/resources/SNoise.tres" id="2_fywk1"]
+[ext_resource type="Script" uid="uid://cbxtlirqx4ems" path="res://ocean/ocean_surface.gd" id="2_ocean"]
+[ext_resource type="Texture2D" uid="uid://cecwdqjol0ckd" path="res://addons/sky_3d/assets/textures/noiseClouds.png" id="3_71j8l"]
+[ext_resource type="Shader" uid="uid://opn7s4xelryy" path="res://ocean/ocean.gdshader" id="3_shader"]
+[ext_resource type="Texture2D" uid="uid://2r8ylu6rg5dp" path="res://addons/sky_3d/assets/thirdparty/textures/moon/MoonMap.png" id="4_4gq47"]
+[ext_resource type="Resource" uid="uid://dgqvxu5ujdnx7" path="res://ocean/default_waves.tres" id="4_waves"]
+[ext_resource type="Script" uid="uid://bn313sefl4652" path="res://ocean/buoyant_body.gd" id="5_buoy"]
+[ext_resource type="Texture2D" uid="uid://djpfuyxkryegn" path="res://addons/sky_3d/assets/textures/noise.jpg" id="5_wd6y5"]
+[ext_resource type="Texture2D" uid="uid://bm7dot7t7u1q4" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/StarField.jpg" id="6_qnsmc"]
+[ext_resource type="Script" uid="uid://ds6dfdj0xqc5e" path="res://ship/physics/ship_body.gd" id="6_ship"]
+[ext_resource type="Texture2D" uid="uid://c1vwcdcdvb74a" path="res://addons/sky_3d/assets/thirdparty/textures/milkyway/Milkyway.jpg" id="7_x7q8m"]
+[ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="9_cr8lx"]
+[ext_resource type="Script" uid="uid://d4bfdiekqyw0p" path="res://ship/mesh/water_mask.gd" id="9_mask"]
+[ext_resource type="Script" uid="uid://c7b4bttd6pg3s" path="res://ship/debug/ship_debug.gd" id="10_debug"]
+[ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="10_rsua5"]
 [ext_resource type="PackedScene" path="res://player/player.tscn" id="12_player"]
-[ext_resource type="Script" path="res://ui/game_ui.gd" id="16_ui"]
-[ext_resource type="Script" path="res://sailing/ship_rig.gd" id="17_rig"]
-[ext_resource type="Script" path="res://sailing/ship_parts_view.gd" id="18_parts"]
-[ext_resource type="Script" path="res://sailing/helm_control.gd" id="19_helm"]
-[ext_resource type="Script" path="res://addons/sky_3d/src/Sky3D.gd" id="20_sky"]
-[ext_resource type="Script" path="res://world/weather_view.gd" id="21_weather"]
-[ext_resource type="Script" path="res://ship/physics/hull_collision.gd" id="23_collision"]
-[ext_resource type="Script" path="res://sailing/ship_part.gd" id="24_part"]
-[ext_resource type="Script" path="res://decor/decor_placer.gd" id="25_placer"]
-[ext_resource type="Script" path="res://core/save_game.gd" id="26_save"]
-[ext_resource type="Script" path="res://ship/hold/hold_interior.gd" id="27_hold"]
-[ext_resource type="Texture2D" path="res://assets/textures/wood_deck.jpg" id="28_deck_tex"]
-[ext_resource type="Texture2D" path="res://assets/textures/wood_dark.jpg" id="29_dark_tex"]
+[ext_resource type="Script" uid="uid://bb3r1abv8xhdl" path="res://ui/game_ui.gd" id="16_ui"]
+[ext_resource type="Script" uid="uid://ba0j1qiap8xqs" path="res://sailing/ship_rig.gd" id="17_rig"]
+[ext_resource type="Script" uid="uid://dv5l1m8jjf3yn" path="res://sailing/ship_parts_view.gd" id="18_parts"]
+[ext_resource type="Script" uid="uid://6ntt06oc0unv" path="res://sailing/helm_control.gd" id="19_helm"]
+[ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="20_sky"]
+[ext_resource type="Script" uid="uid://0fpytdhnkrh5" path="res://world/weather_view.gd" id="21_weather"]
+[ext_resource type="PackedScene" uid="uid://b7yia1c36oww1" path="res://assets/ships/sloop/sloop.glb" id="22_sloop"]
+[ext_resource type="Script" uid="uid://kr83a1al7dic" path="res://ship/physics/hull_collision.gd" id="23_collision"]
+[ext_resource type="PackedScene" path="res://assets/ships/sloop/sloop_colision.glb" id="30_hull_col"]
+[ext_resource type="Script" uid="uid://hwa5jarldhw1" path="res://sailing/ship_part.gd" id="24_part"]
+[ext_resource type="Script" uid="uid://de513r1p0swbn" path="res://decor/decor_placer.gd" id="25_placer"]
+[ext_resource type="Script" uid="uid://60tcnrmfaii2" path="res://core/save_game.gd" id="26_save"]
+[ext_resource type="Script" uid="uid://cm7vqguu8o5l1" path="res://ship/hold/hold_interior.gd" id="27_hold"]
+[ext_resource type="Script" path="res://ship/hold/hatch_control.gd" id="31_hatch"]
+[ext_resource type="Script" path="res://combat/cannon_control.gd" id="32_cannon"]
+[ext_resource type="Texture2D" uid="uid://dhv3ylppmeylh" path="res://assets/textures/wood_deck.jpg" id="28_deck_tex"]
+[ext_resource type="Texture2D" uid="uid://e5oiayqvj3jx" path="res://assets/textures/wood_dark.jpg" id="29_dark_tex"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ss8bt"]
+shader = ExtResource("1_g1egj")
+shader_parameter/sky_visible = true
+shader_parameter/color_correction = Vector2(0, 1)
+shader_parameter/ground_color = Color(0.3, 0.3, 0.3, 1)
+shader_parameter/horizon_offset = 0.0
+shader_parameter/atm_darkness = 0.5
+shader_parameter/atm_sun_intensity = 18.0
+shader_parameter/atm_day_tint = Color(0.807843, 0.909804, 1, 1)
+shader_parameter/atm_horizon_light_tint = Color(0.980392, 0.635294, 0.462745, 1)
+shader_parameter/atm_night_tint = Color(0.168627, 0.2, 0.25098, 1)
+shader_parameter/atm_level_params = Vector3(1, 0, 0)
+shader_parameter/atm_thickness = 0.7
+shader_parameter/atm_beta_ray = Vector3(5.804544e-06, 1.3562913e-05, 3.311258e-05)
+shader_parameter/atm_beta_mie = Vector3(3.038e-08, 3.038e-08, 3.038e-08)
+shader_parameter/sun_light_color = Color(0.98, 0.523, 0.294, 1)
+shader_parameter/sun_disk_color = Color(0.996094, 0.541334, 0.140076, 1)
+shader_parameter/sun_disk_intensity = 30.0
+shader_parameter/sun_disk_size = 0.02
+shader_parameter/atm_sun_mie_tint = Color(1, 1, 1, 1)
+shader_parameter/atm_sun_mie_intensity = 1.0
+shader_parameter/atm_sun_partial_mie_phase = Vector3(0.36, 1.64, 1.6)
+shader_parameter/moon_color = Color(1, 1, 1, 1)
+shader_parameter/moon_texture = ExtResource("4_4gq47")
+shader_parameter/moon_texture_alignment = Vector3(7, 1.4, 4.8)
+shader_parameter/moon_texture_flip_u = false
+shader_parameter/moon_texture_flip_v = false
+shader_parameter/moon_size = 0.07
+shader_parameter/atm_moon_mie_tint = Color(0.137255, 0.184314, 0.292196, 1)
+shader_parameter/atm_moon_mie_intensity = 0.0
+shader_parameter/atm_moon_partial_mie_phase = Vector3(0.36, 1.64, 1.6)
+shader_parameter/starmap_color = Color(0.709804, 0.709804, 0.709804, 0.854902)
+shader_parameter/starmap_texture = ExtResource("7_x7q8m")
+shader_parameter/starmap_flip_u = false
+shader_parameter/starmap_flip_v = false
+shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
+shader_parameter/star_rotation_offset = 9.38899
+shader_parameter/star_rotation = -14.195306505231331
+shader_parameter/star_tilt = -1.2915436464758039
+shader_parameter/star_field_color = Color(1, 1, 1, 1)
+shader_parameter/star_field_texture = ExtResource("6_qnsmc")
+shader_parameter/star_scintillation = 0.75
+shader_parameter/star_scintillation_speed = 0.01
+shader_parameter/noise_tex = ExtResource("5_wd6y5")
+shader_parameter/clouds_night_color = Color(0.090196, 0.094118, 0.129412, 1)
+shader_parameter/cirrus_visible = true
+shader_parameter/cirrus_intensity = 2.0
+shader_parameter/cirrus_coverage = 0.5
+shader_parameter/cirrus_thickness = 1.7
+shader_parameter/cirrus_absorption = 2.0
+shader_parameter/cirrus_sky_tint_fade = 0.5
+shader_parameter/cirrus_size = 1.0
+shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
+shader_parameter/cirrus_position1 = Vector2(0.8156157, 0.8156157)
+shader_parameter/cirrus_position2 = Vector2(0.8156157, 0.8156157)
+shader_parameter/cirrus_texture = ExtResource("2_fywk1")
+shader_parameter/cumulus_visible = true
+shader_parameter/cumulus_intensity = 0.6
+shader_parameter/cumulus_coverage = 0.55
+shader_parameter/cumulus_thickness = 0.0243
+shader_parameter/cumulus_absorption = 2.0
+shader_parameter/cumulus_noise_freq = 2.7
+shader_parameter/cumulus_sky_tint_fade = 0.0
+shader_parameter/cumulus_size = 0.5
+shader_parameter/cumulus_position = Vector2(4.0785775, 4.0785775)
+shader_parameter/cumulus_texture = ExtResource("3_71j8l")
+shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.042436, 0.412)
+shader_parameter/cumulus_mie_intensity = 1.0
+shader_parameter/show_azimuthal_grid = false
+shader_parameter/azimuthal_grid_color = Color(0.87058824, 0.72156864, 0.5294118, 1)
+shader_parameter/azimuthal_grid_rotation_offset = 0.03
+shader_parameter/show_equatorial_grid = false
+shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
+shader_parameter/equatorial_grid_rotation_offset = 0.03
+shader_parameter/moon_matrix = Basis(-0.81335866, 0.55922616, 0.1603555, -0.22779524, -0.052513406, -0.97229207, -0.53531027, -0.8273504, 0.17010131)
+
+[sub_resource type="Sky" id="Sky_13xm7"]
+sky_material = SubResource("ShaderMaterial_ss8bt")
+
+[sub_resource type="Environment" id="Environment_y32xm"]
+background_mode = 2
+sky = SubResource("Sky_13xm7")
+ambient_light_source = 3
+ambient_light_color = Color(0.23515604, 0.27890667, 0.35, 1)
+ambient_light_sky_contribution = 0.7
+reflected_light_source = 2
+tonemap_mode = 3
+tonemap_white = 6.0
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_ywq8n"]
+
+[sub_resource type="ShaderMaterial" id="sea_mat"]
+render_priority = 0
+shader = ExtResource("3_shader")
+shader_parameter/waves = PackedVector4Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wave_count = 0
+shader_parameter/ocean_time = 0.0
+shader_parameter/water_color = Color(0.04, 0.22, 0.27, 1)
+shader_parameter/absorption = Vector3(0.45, 0.11, 0.08)
+shader_parameter/clarity = 2.5
+shader_parameter/shallow_color = Color(0.05, 0.42, 0.42, 1)
+shader_parameter/diffuse_amount = 0.15
+shader_parameter/refraction = 0.04
+shader_parameter/foam_color = Color(0.92, 0.95, 0.95, 1)
+shader_parameter/jacobian_foam = 0.9
+shader_parameter/contact_foam = 0.7
+shader_parameter/inner_radius = 0.0
+shader_parameter/detail_strength = 0.6
+shader_parameter/detail_scale_a = 7.0
+shader_parameter/detail_scale_b = 2.5
+shader_parameter/detail_speed = 0.5
+shader_parameter/detail_fade = 60.0
+shader_parameter/sun_roughness = 0.25
+shader_parameter/scattering = 1.0
+shader_parameter/ship_inverse = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+shader_parameter/ship_size = Vector3i(0, 0, 0)
 
 [sub_resource type="PlaneMesh" id="sea_mesh"]
 size = Vector2(512, 512)
 subdivide_width = 511
 subdivide_depth = 511
 
-[sub_resource type="ShaderMaterial" id="sea_mat"]
-shader = ExtResource("3_shader")
-
-[sub_resource type="PlaneMesh" id="horizon_mesh"]
-size = Vector2(8000, 8000)
-
 [sub_resource type="ShaderMaterial" id="horizon_mat"]
 render_priority = -1
 shader = ExtResource("3_shader")
+shader_parameter/waves = PackedVector4Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wave_count = 0
+shader_parameter/ocean_time = 0.0
+shader_parameter/water_color = Color(0.04, 0.22, 0.27, 1)
+shader_parameter/absorption = Vector3(0.45, 0.11, 0.08)
+shader_parameter/clarity = 2.5
+shader_parameter/shallow_color = Color(0.05, 0.42, 0.42, 1)
+shader_parameter/diffuse_amount = 0.15
+shader_parameter/refraction = 0.04
+shader_parameter/foam_color = Color(0.92, 0.95, 0.95, 1)
+shader_parameter/jacobian_foam = 0.9
+shader_parameter/contact_foam = 0.7
 shader_parameter/inner_radius = 250.0
+shader_parameter/detail_strength = 0.6
+shader_parameter/detail_scale_a = 7.0
+shader_parameter/detail_scale_b = 2.5
+shader_parameter/detail_speed = 0.5
+shader_parameter/detail_fade = 60.0
+shader_parameter/sun_roughness = 0.25
+shader_parameter/scattering = 1.0
+shader_parameter/ship_inverse = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+shader_parameter/ship_size = Vector3i(0, 0, 0)
 
-[sub_resource type="StandardMaterial3D" id="com_mat"]
-no_depth_test = true
-shading_mode = 0
-albedo_color = Color(1, 0.1, 0.1, 1)
-
-[sub_resource type="SphereMesh" id="com_mesh"]
-material = SubResource("com_mat")
-radius = 0.4
-height = 0.8
+[sub_resource type="PlaneMesh" id="horizon_mesh"]
+size = Vector2(8000, 8000)
 
 [sub_resource type="BoxShape3D" id="box_shape"]
 
@@ -64,29 +201,65 @@ roughness = 0.85
 [sub_resource type="StandardMaterial3D" id="hold_stair_mat"]
 albedo_texture = ExtResource("29_dark_tex")
 roughness = 0.85
-uv1_triplanar = true
 uv1_scale = Vector3(0.7, 0.7, 0.7)
+uv1_triplanar = true
 
-[node name="Sandbox" type="Node3D"]
+[sub_resource type="StandardMaterial3D" id="com_mat"]
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(1, 0.1, 0.1, 1)
 
-[node name="Sky3D" type="WorldEnvironment" parent="."]
+[sub_resource type="SphereMesh" id="com_mesh"]
+material = SubResource("com_mat")
+radius = 0.4
+height = 0.8
+
+[node name="Sandbox" type="Node3D" unique_id=1572846685]
+
+[node name="Sky3D" type="WorldEnvironment" parent="." unique_id=1921228051]
+environment = SubResource("Environment_y32xm")
+camera_attributes = SubResource("CameraAttributesPractical_ywq8n")
 script = ExtResource("20_sky")
-game_time_enabled = false
+current_time = 23.231493333315495
+wind_direction = 2.35619451204804
 
-[node name="Ocean" type="MeshInstance3D" parent="."]
+[node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1241434918]
+transform = Transform3D(0.63136184, -0.7604284, -0.15208808, 0, 0.19611908, -0.9805801, 0.7754883, 0.61910087, 0.123822115, -0.15208808, -0.9805801, 0.123822115)
+light_color = Color(0.98, 0.523, 0.294, 1)
+light_energy = 0.0
+
+[node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=1634228400]
+transform = Transform3D(0, -0.84465563, -0.53531027, 0.20138538, 0.5243429, -0.8273503, 0.97951216, -0.10780366, 0.17010127, -0.53531027, -0.8273503, 0.17010127)
+light_color = Color(0.572549, 0.776471, 0.956863, 1)
+light_energy = 0.0
+
+[node name="SkyDome" type="Node" parent="Sky3D" unique_id=1605661581]
+script = ExtResource("9_cr8lx")
+sun_azimuth = -4.029081
+sun_altitude = -2.944194
+moon_azimuth = -4.4047174
+moon_altitude = -2.54517
+wind_direction = 2.35619451204804
+
+[node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=614543042]
+script = ExtResource("10_rsua5")
+dome_path = NodePath("../SkyDome")
+current_time = 23.231493333315495
+
+[node name="Ocean" type="MeshInstance3D" parent="." unique_id=330265831]
+material_override = SubResource("sea_mat")
 cast_shadow = 0
 extra_cull_margin = 16.0
 mesh = SubResource("sea_mesh")
-material_override = SubResource("sea_mat")
 script = ExtResource("2_ocean")
 settings = ExtResource("4_waves")
 
-[node name="Horizon" type="MeshInstance3D" parent="Ocean"]
+[node name="Horizon" type="MeshInstance3D" parent="Ocean" unique_id=230173090]
+material_override = SubResource("horizon_mat")
 cast_shadow = 0
 mesh = SubResource("horizon_mesh")
-material_override = SubResource("horizon_mat")
 
-[node name="FloatingCube" type="RigidBody3D" parent="."]
+[node name="FloatingCube" type="RigidBody3D" parent="." unique_id=216128567]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 mass = 500.0
 can_sleep = false
@@ -94,75 +267,73 @@ script = ExtResource("5_buoy")
 waves = ExtResource("4_waves")
 points = PackedVector3Array(-0.25, -0.25, -0.25, 0.25, -0.25, -0.25, -0.25, -0.25, 0.25, 0.25, -0.25, 0.25, -0.25, 0.25, -0.25, 0.25, 0.25, -0.25, -0.25, 0.25, 0.25, 0.25, 0.25, 0.25)
 
-[node name="Shape" type="CollisionShape3D" parent="FloatingCube"]
+[node name="Shape" type="CollisionShape3D" parent="FloatingCube" unique_id=80810675]
 shape = SubResource("box_shape")
 
-[node name="Mesh" type="MeshInstance3D" parent="FloatingCube"]
+[node name="Mesh" type="MeshInstance3D" parent="FloatingCube" unique_id=758090908]
 mesh = SubResource("box_mesh")
 
-
-[node name="TestShip" type="RigidBody3D" parent="."]
+[node name="TestShip" type="RigidBody3D" parent="." unique_id=1560136175]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
 can_sleep = false
 script = ExtResource("6_ship")
 waves = ExtResource("4_waves")
 grid_path = "res://assets/ships/sloop/sloop.grid"
 
-[node name="Model" parent="TestShip" instance=ExtResource("22_sloop")]
+[node name="Model" parent="TestShip" unique_id=135358490 instance=ExtResource("22_sloop")]
 
-[node name="Collision" type="AnimatableBody3D" parent="TestShip" node_paths=PackedStringArray("model")]
+[node name="Collision" type="AnimatableBody3D" parent="TestShip" unique_id=397812109 node_paths=PackedStringArray("model")]
 script = ExtResource("23_collision")
 model = NodePath("../Model")
+source = ExtResource("30_hull_col")
 
-[node name="Hold" type="AnimatableBody3D" parent="TestShip"]
+[node name="Hold" type="AnimatableBody3D" parent="TestShip" unique_id=573411431]
 script = ExtResource("27_hold")
-hatch_min = Vector2(4.01, 10.21)
-hatch_max = Vector2(6.49, 12.72)
+floor_height = 1.0
+hatch_min = Vector2(3.21, 6.99)
+hatch_max = Vector2(5.5, 9.49)
+deck_height = 3.85
 floor_material = SubResource("hold_floor_mat")
 stair_material = SubResource("hold_stair_mat")
 
-[node name="Sail" type="Node3D" parent="TestShip"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 5.368, 7.6)
+[node name="Sail" type="Node3D" parent="TestShip" unique_id=872728661]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.25, 3.75, 5.5)
 script = ExtResource("24_part")
 kind = 1
 mass = 200.0
-sail_area = 100.0
-mast_height = 12.0
+sail_area = 40.0
+mast_height = 9.0
 
-[node name="Helm" type="Node3D" parent="TestShip"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 7.416, 17.4)
-script = ExtResource("24_part")
-kind = 2
-
-[node name="Anchor" type="Node3D" parent="TestShip"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 6.125, 4.1)
+[node name="Anchor" type="Node3D" parent="TestShip" unique_id=352757653]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.0, 3.91, 4.0)
 script = ExtResource("24_part")
 kind = 3
 
-[node name="Player" parent="TestShip" instance=ExtResource("12_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 5.6, 13)
+[node name="Player" parent="TestShip" unique_id=812544225 instance=ExtResource("12_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.25, 4.3, 11.5)
 
-[node name="Rig" type="Node" parent="TestShip"]
+[node name="Rig" type="Node" parent="TestShip" unique_id=706356594]
 script = ExtResource("17_rig")
 
-[node name="Parts" type="Node3D" parent="TestShip" node_paths=PackedStringArray("ship", "rig")]
+[node name="Parts" type="Node3D" parent="TestShip" unique_id=1479928601 node_paths=PackedStringArray("ship", "rig")]
 script = ExtResource("18_parts")
 ship = NodePath("..")
 rig = NodePath("../Rig")
 
-[node name="WaterMask" type="Node" parent="TestShip" node_paths=PackedStringArray("ship", "ocean")]
+[node name="WaterMask" type="Node" parent="TestShip" unique_id=178970360 node_paths=PackedStringArray("ship", "ocean")]
 script = ExtResource("9_mask")
 ship = NodePath("..")
 ocean = NodePath("../../Ocean")
 
-[node name="Debug" type="Node3D" parent="TestShip" node_paths=PackedStringArray("ship")]
+[node name="Debug" type="Node3D" parent="TestShip" unique_id=1398318537 node_paths=PackedStringArray("ship")]
 script = ExtResource("10_debug")
 ship = NodePath("..")
 
-[node name="CenterOfMass" type="MeshInstance3D" parent="TestShip/Debug"]
+[node name="CenterOfMass" type="MeshInstance3D" parent="TestShip/Debug" unique_id=864399337]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5747213, 0.98255956, 16.754202)
 mesh = SubResource("com_mesh")
 
-[node name="GameUI" type="CanvasLayer" parent="." node_paths=PackedStringArray("player", "ship", "sky", "ocean", "placer", "save")]
+[node name="GameUI" type="CanvasLayer" parent="." unique_id=1360474793 node_paths=PackedStringArray("player", "ship", "sky", "ocean", "placer", "save")]
 script = ExtResource("16_ui")
 player = NodePath("../TestShip/Player")
 ship = NodePath("../TestShip")
@@ -171,23 +342,35 @@ ocean = NodePath("../Ocean")
 placer = NodePath("../Decor")
 save = NodePath("../Save")
 
-[node name="Helm" type="Node" parent="." node_paths=PackedStringArray("ship", "rig", "player")]
+[node name="Helm" type="Node" parent="." unique_id=1732411743 node_paths=PackedStringArray("ship", "rig", "player")]
 script = ExtResource("19_helm")
 ship = NodePath("../TestShip")
 rig = NodePath("../TestShip/Rig")
 player = NodePath("../TestShip/Player")
 
-[node name="WeatherView" type="Node" parent="." node_paths=PackedStringArray("sky")]
+[node name="Hatch" type="Node" parent="." node_paths=PackedStringArray("player", "hold", "helm")]
+script = ExtResource("31_hatch")
+player = NodePath("../TestShip/Player")
+hold = NodePath("../TestShip/Hold")
+helm = NodePath("../Helm")
+
+[node name="Cannon" type="Node" parent="." node_paths=PackedStringArray("ship", "player", "helm")]
+script = ExtResource("32_cannon")
+ship = NodePath("../TestShip")
+player = NodePath("../TestShip/Player")
+helm = NodePath("../Helm")
+
+[node name="WeatherView" type="Node" parent="." unique_id=2138878774 node_paths=PackedStringArray("sky")]
 script = ExtResource("21_weather")
 sky = NodePath("../Sky3D")
 
-[node name="Decor" type="Node" parent="." node_paths=PackedStringArray("ship", "player", "camera")]
+[node name="Decor" type="Node" parent="." unique_id=850101645 node_paths=PackedStringArray("ship", "player", "camera")]
 script = ExtResource("25_placer")
 ship = NodePath("../TestShip")
 player = NodePath("../TestShip/Player")
 camera = NodePath("../TestShip/Player/Head/Camera")
 
-[node name="Save" type="Node" parent="." node_paths=PackedStringArray("ship", "player")]
+[node name="Save" type="Node" parent="." unique_id=1371898634 node_paths=PackedStringArray("ship", "player")]
 script = ExtResource("26_save")
 ship = NodePath("../TestShip")
 player = NodePath("../TestShip/Player")

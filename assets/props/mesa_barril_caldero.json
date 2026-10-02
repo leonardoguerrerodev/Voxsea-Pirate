@@ -1,0 +1,10 @@
+{
+  "source": "../../models/props/mesa_barril_caldero.glb",
+  "out": ".",
+  "cluster": 0.005,
+  "props": [
+    {"piece": 1, "name": "mesa_mapas", "size": 1.4},
+    {"piece": 0, "name": "barril", "size": 1.0},
+    {"piece": 2, "name": "caldero", "size": 0.7}
+  ]
+}

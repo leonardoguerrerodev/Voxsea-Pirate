@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="WaveSettings" format=3]
+[gd_resource type="Resource" script_class="WaveSettings" format=3 uid="uid://dgqvxu5ujdnx7"]
 
-[ext_resource type="Script" path="res://ocean/wave_settings.gd" id="1_n7erf"]
-[ext_resource type="Script" path="res://ocean/wave.gd" id="2_qqiq7"]
+[ext_resource type="Script" uid="uid://c0rs05en17e7i" path="res://ocean/wave_settings.gd" id="1_n7erf"]
+[ext_resource type="Script" uid="uid://cjl6ynccl8x72" path="res://ocean/wave.gd" id="2_qqiq7"]
 
 [sub_resource type="Resource" id="Resource_wx5vk"]
 script = ExtResource("2_qqiq7")

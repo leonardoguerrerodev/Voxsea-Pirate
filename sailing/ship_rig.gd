@@ -13,9 +13,10 @@ const RUDDER_AREA: float = 2.0
 const RUDDER_LIFT: float = 1.2
 ## Ángulos de vela que se prueban para orientarla sola, a cada banda: de TRIM_MIN
 ## (la jarcia no deja cazarla más cerca de la crujía; abre la zona prohibida
-## contra el viento) a TRIM_LIMIT.
+## contra el viento) a TRIM_LIMIT. Vela cuadra: la verga se bracea hasta ~45° de la
+## manga, no se pone a lo largo del barco (así la tela queda delante del mástil).
 const TRIM_STEPS: int = 12
-const TRIM_MIN: float = deg_to_rad(25.0)
+const TRIM_MIN: float = deg_to_rad(45.0)
 const TRIM_LIMIT: float = deg_to_rad(80.0)
 
 # Perillas de calibración (las ajusta el menú dev).
@@ -30,6 +31,10 @@ const TRIM_LIMIT: float = deg_to_rad(80.0)
 @export_range(0.0, 10.0, 0.1) var keel_lift: float = 3.0
 ## Freno del ancla (1/s): fracción de la velocidad horizontal que quita por segundo.
 @export_range(0.0, 20.0, 0.5) var anchor_drag: float = 6.0
+## Parte de costado de la fuerza de la vela que llega al barco (0 = solo empuja
+## hacia proa). Como en Sea of Thieves: la vela empuja adelante y se maniobra con el
+## timón; esto deja un leve tirón de costado. La escora sale igual (fuerza alta).
+@export_range(0.0, 1.0, 0.01) var side_push: float = 0.15
 
 ## 0 = velas recogidas, 1 = desplegadas.
 var sail_amount: float = 0.0
@@ -38,6 +43,9 @@ var rudder: float = 0.0
 var anchored: bool = false
 ## Ángulo de cada vela respecto de la crujía (rad), por pieza. Lo lee la presentación.
 var sail_trims: Dictionary = {}
+## Empuje hacia proa de cada vela (0..1, respecto del máximo posible con ese
+## viento), por pieza. Lo lee la presentación para inflar la tela.
+var sail_drives: Dictionary = {}
 
 @onready var ship: ShipBody = get_parent() as ShipBody
 
@@ -97,7 +105,11 @@ func _apply_sails(forward: Vector3, com: Vector3) -> void:
 				best_force = force
 				best_trim = trim
 		sail_trims[sail] = best_trim
-		ship.apply_force(best_force, point - ship.global_position)
+		var drive: float = maxf(best_drive, 0.0)
+		var lateral: Vector3 = best_force - forward * best_force.dot(forward)
+		var full: float = 0.5 * AIR_DENSITY * apparent.length_squared() * sail.sail_area * sail_amount * sail_scale * 1.6
+		sail_drives[sail] = clampf(drive / full, 0.0, 1.0) if full > 0.0 else 0.0
+		ship.apply_force(forward * drive + lateral * side_push, point - ship.global_position)
 
 
 ## Ángulos de vela posibles respecto de la crujía (rad), a ambas bandas.

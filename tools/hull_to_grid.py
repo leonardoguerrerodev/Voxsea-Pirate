@@ -1,6 +1,16 @@
 # Casco modelado (.glb de Tripo u otro) → malla para el juego + grilla física.
 # Uso:
-#   blender -b --python tools/hull_to_grid.py -- <entrada.glb> <salida sin extensión> <eslora m> [triángulos]
+#   blender -b --python tools/hull_to_grid.py -- <entrada.glb> <salida sin extensión> <eslora m> [triángulos, 0 = completa] [manga m] [alto m] [escotilla]
+# Textura: si existe <salida>.materials.json se pinta con la paleta (abajo); si no,
+# se conserva la textura del modelo (la que trae el .glb, con prioridad).
+# Escotilla (solo modelos de una pieza, sin material 'rejilla'): "z0,z1,x0,x1,p" en
+# fracción del largo (desde la proa) y del ancho, y p = metros bajo la cubierta
+# donde terminan los barrotes. Se deja la rejilla y se borra lo que cuelga bajo
+# ella (los modelos macizos traen una caja cerrada bajo la rejilla), hasta 1,5 m:
+# así se ve a través de la rejilla y entra la luz a la bodega. La física la tapa.
+# Sin manga ni alto (o con "-") la escala es pareja (según la eslora); con ellos, cada eje por
+# separado. Escalar el modelo en el editor de Godot no sirve: la grilla (flotación,
+# bodega, máscara de agua) sale de aquí.
 # Si existe <salida>.materials.json ({"parts": {"N": "material"}}), pinta cada
 # pieza tripo_part_N con un material de MATERIALS; las demás quedan 'casco'.
 # Escribe <salida>.glb (malla reducida, en ejes de Godot, esquina mínima en el
@@ -20,6 +30,9 @@ import bmesh
 import numpy as np
 from mathutils import Matrix
 
+sys.path.append(os.path.dirname(__file__))
+from bake_uv import bake_texture_transform  # noqa: E402
+
 VOXEL = 0.5
 SHELL = 1
 INTERIOR = 2
@@ -38,6 +51,8 @@ MATERIALS = {
     "rejilla": ("wood_dark.jpg", (0.7, 0.7, 0.7)),
 }
 TILE = 1.5
+## Triángulos de la malla de colisión (<salida>_colision.glb).
+COLLISION_TRIS = 60000
 
 
 def make_material(name):
@@ -66,17 +81,23 @@ def make_material(name):
 args = sys.argv[sys.argv.index("--") + 1:]
 src, out, length = args[0], args[1], float(args[2])
 target_tris = int(args[3]) if len(args) > 3 else 40000
+beam = float(args[4]) if len(args) > 4 and args[4] != "-" else None
+height = float(args[5]) if len(args) > 5 and args[5] != "-" else None
+hatch = [float(v) for v in args[6].split(",")] if len(args) > 6 else None
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
 meshes = [o for o in bpy.data.objects if o.type == "MESH"]
-parts = {}
-if os.path.exists(out + ".materials.json"):
+paint = os.path.exists(out + ".materials.json")
+if paint:
     parts = json.load(open(out + ".materials.json"))["parts"]
-materials = {name: make_material(name) for name in MATERIALS}
-for o in meshes:
-    o.data.materials.clear()
-    o.data.materials.append(materials[parts.get(o.name.rsplit("_", 1)[-1], "casco")])
+    materials = {name: make_material(name) for name in MATERIALS}
+    for o in meshes:
+        o.data.materials.clear()
+        o.data.materials.append(materials[parts.get(o.name.rsplit("_", 1)[-1], "casco")])
+else:
+    for o in meshes:
+        bake_texture_transform(o)
 bpy.ops.object.select_all(action="DESELECT")
 for o in meshes:
     o.select_set(True)
@@ -89,15 +110,20 @@ bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 hull.data.transform(Matrix.Rotation(-np.pi / 2, 4, "Z"))
 verts = np.array([v.co[:] for v in hull.data.vertices])
 size = verts.max(0) - verts.min(0)
-hull.data.transform(Matrix.Scale(length / size[1], 4))
+uniform = length / size[1]
+scale = Matrix.Diagonal((beam / size[0] if beam else uniform, uniform, height / size[2] if height else uniform, 1))
+hull.data.transform(scale)
 verts = np.array([v.co[:] for v in hull.data.vertices])
 # Esquina mínima en el origen: la grilla empieza ahí.
 hull.data.transform(Matrix.Translation(-verts.min(0)))
 # La cubierta principal justo bajo un borde de voxel: así el tope del voxel (donde
 # pisan el jugador y las piezas) coincide con la cubierta que se ve. Altura de la
 # cubierta = mediana por área de las caras de 'cubierta' que miran arriba.
-deck_index = [m.name for m in hull.data.materials].index("cubierta")
-faces = [f for f in hull.data.polygons if f.material_index == deck_index and f.normal.z > 0.9]
+# Sin material 'cubierta' (modelo con su textura): todas las caras que miran arriba;
+# la cubierta principal es la de más área.
+names = [m.name for m in hull.data.materials]
+deck_index = names.index("cubierta") if "cubierta" in names else -1
+faces = [f for f in hull.data.polygons if f.normal.z > 0.9 and (deck_index < 0 or f.material_index == deck_index)]
 if faces:
     heights = np.array([f.center.z for f in faces])
     areas = np.array([f.area for f in faces])
@@ -111,11 +137,28 @@ if faces:
 # Grilla: con la malla completa, antes de reducirla. Ejes de Godot: x = x,
 # y = z de Blender, z = -y de Blender (después de la traslación, -y es negativo:
 # se corre por el largo).
-bm = bmesh.new()
-bm.from_mesh(hull.data)
-pts = [v.co[:] for v in bm.verts] + [f.calc_center_median()[:] for f in bm.faces]
-bm.free()
-p = np.array(pts)
+# Puntos sobre toda la superficie, a menos de 1/4 de voxel: con solo vértices y
+# centros, un triángulo grande (fondo plano de un modelo de Meshy) deja voxels sin
+# marcar y el aire de afuera entra a la bodega por ahí.
+mesh = hull.data
+mesh.calc_loop_triangles()
+co = np.empty(len(mesh.vertices) * 3)
+mesh.vertices.foreach_get("co", co)
+co = co.reshape(-1, 3)
+tris = np.empty(len(mesh.loop_triangles) * 3, int)
+mesh.loop_triangles.foreach_get("vertices", tris)
+a_, b_, c_ = (co[i] for i in tris.reshape(-1, 3).T)
+longest = np.maximum(np.linalg.norm(b_ - a_, axis=1), np.maximum(np.linalg.norm(c_ - a_, axis=1), np.linalg.norm(c_ - b_, axis=1)))
+steps = np.clip(np.ceil(longest / (VOXEL / 4)), 1, 64).astype(int)
+samples = [co]
+for n in np.unique(steps):
+    pick = steps == n
+    i, j = np.meshgrid(np.arange(n + 1), np.arange(n + 1))
+    keep = i + j <= n
+    u, w = i[keep] / n, j[keep] / n
+    A, B, C = a_[pick], b_[pick], c_[pick]
+    samples.append((A[:, None] + u[None, :, None] * (B - A)[:, None] + w[None, :, None] * (C - A)[:, None]).reshape(-1, 3))
+p = np.concatenate(samples)
 extent = np.array([p[:, 0].max(), p[:, 2].max(), p[:, 1].max()])
 grid = np.ceil(extent / VOXEL).astype(int) + 1
 # Centrado en x dentro de la grilla, para que el espejo calce voxel a voxel.
@@ -127,6 +170,12 @@ voxels[cells[:, 2], cells[:, 0], cells[:, 1]] = SHELL
 # Simetría babor-estribor: un modelo de IA nunca es exacto y un costado más
 # grueso que el otro escora el barco.
 voxels = np.maximum(voxels, voxels[:, ::-1, :])
+# Escotilla por región: para la física se tapa (como la rejilla en los cascos por
+# piezas), si no el aire de afuera entra por los huecos y no hay bodega.
+if hatch and "rejilla" not in [m.name for m in hull.data.materials]:
+    x0, x1 = (shift + extent[0] * np.array(hatch[2:4])) / VOXEL
+    z0, z1 = extent[2] * np.array(hatch[0:2]) / VOXEL
+    voxels[int(z0):int(np.ceil(z1)), int(x0):int(np.ceil(x1)), int(deck / VOXEL)] = SHELL
 # Aire interior: lo que no alcanza el aire de afuera entrando por cualquier borde
 # de la grilla (también por arriba) sin cruzar casco, con 6 vecinos.
 free = voxels == 0
@@ -174,19 +223,44 @@ if "rejilla" in names:
     bmesh.ops.delete(bm, geom=cut, context="FACES")
     # En ejes de Godot: x igual, z = -y de Blender, y = z de Blender.
     print("escotilla x %.2f..%.2f z %.2f..%.2f cubierta y %.2f" % (lo[0], hi[0], -hi[1], -lo[1], deck))
+elif hatch:
+    # Proa en y = 0 de Blender (z = 0 de Godot); el largo va hacia -y.
+    corners = np.array([v.co[:] for v in bm.verts])
+    lo, hi = corners.min(0), corners.max(0)
+    x0, x1 = lo[0] + (hi[0] - lo[0]) * hatch[2], lo[0] + (hi[0] - lo[0]) * hatch[3]
+    y0, y1 = hi[1] - (hi[1] - lo[1]) * hatch[1], hi[1] - (hi[1] - lo[1]) * hatch[0]
+    bars = hatch[4]
+    cut = [f for f in bm.faces if x0 < f.calc_center_median().x < x1 and y0 < f.calc_center_median().y < y1 and deck - 1.5 < f.calc_center_median().z < deck - bars]
+    bmesh.ops.delete(bm, geom=cut, context="FACES")
+    print("escotilla x %.2f..%.2f z %.2f..%.2f cubierta y %.2f (%d caras)" % (x0, x1, -y1, -y0, deck, len(cut)))
 bm.to_mesh(hull.data)
 bm.free()
 # Coordenadas de textura: proyección de caja en metros, igual en todo el barco.
 bpy.ops.object.select_all(action="DESELECT")
 hull.select_set(True)
 bpy.context.view_layer.objects.active = hull
-bpy.ops.object.mode_set(mode="EDIT")
-bpy.ops.mesh.select_all(action="SELECT")
-bpy.ops.uv.cube_project(cube_size=TILE, correct_aspect=False, scale_to_bounds=False)
-bpy.ops.object.mode_set(mode="OBJECT")
-ratio = min(1.0, target_tris / max(1, len(hull.data.polygons)))
-mod = hull.modifiers.new("reduce", "DECIMATE")
-mod.ratio = ratio
-bpy.ops.object.modifier_apply(modifier=mod.name)
+if paint:
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.uv.cube_project(cube_size=TILE, correct_aspect=False, scale_to_bounds=False)
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+
+def reduce(tris):
+    ratio = min(1.0, tris / max(1, len(hull.data.polygons)))
+    mod = hull.modifiers.new("reduce", "DECIMATE")
+    mod.ratio = ratio
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+
+
+# Malla que se ve: reducir mucho deforma la textura (colapsa caras que cruzan los
+# bordes del mapa UV: tablas en zigzag), así que va con `triángulos` (0 = completa).
+if target_tris > 0:
+    reduce(target_tris)
 bpy.ops.export_scene.gltf(filepath=out + ".glb", use_selection=True, export_yup=True)
-print("grilla", grid.tolist(), "casco", int((voxels == SHELL).sum()), "interior", int((voxels == INTERIOR).sum()), "eslora", length, "triángulos", len(hull.data.polygons))
+visible = len(hull.data.polygons)
+# Malla de colisión (HullCollision.source): reducida, sin materiales; con la completa
+# armar la forma cóncava tarda segundos y cientos de MB.
+reduce(COLLISION_TRIS)
+bpy.ops.export_scene.gltf(filepath=out + "_colision.glb", use_selection=True, export_yup=True, export_materials="NONE")
+print("grilla", grid.tolist(), "casco", int((voxels == SHELL).sum()), "interior", int((voxels == INTERIOR).sum()), "eslora", length, "triángulos", visible, "colisión", len(hull.data.polygons))

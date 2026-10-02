@@ -51,6 +51,16 @@ func toggle() -> bool:
 	return true
 
 
+## Nodo de la pieza móvil (gira en la bisagra): el tubo del cañón, la rueda del timón.
+func pivot() -> Node3D:
+	return _pivot
+
+
+## Gira la pieza en su eje sin animar (la rueda del timón sigue al timón).
+func set_turn(angle: float) -> void:
+	_pivot.transform = Transform3D(Basis(hinge_axis.normalized(), angle), hinge)
+
+
 ## Pose de la pieza: 0 = cerrada, 1 = abierta.
 func _pose(t: float) -> Transform3D:
 	var rotation_basis: Basis = Basis(hinge_axis.normalized(), deg_to_rad(open_angle * t)) if movable else Basis.IDENTITY

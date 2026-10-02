@@ -1,0 +1,10 @@
+{
+  "source": "../../models/props/palos.glb",
+  "out": ".",
+  "cluster": 0.005,
+  "props": [
+    {"piece": 0, "name": "palo_cofa", "size": 12.0, "box": [0, 1, 0, 1, 0.8, 0.85], "keep": false},
+    {"piece": 0, "name": "palo_verga", "size": 12.0, "box": [0, 1, 0, 1, 0.8, 0.85], "keep": true},
+    {"piece": 1, "name": "palo", "size": 12.0}
+  ]
+}

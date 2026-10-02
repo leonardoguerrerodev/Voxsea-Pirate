@@ -1,9 +1,9 @@
 {
-  "source": "../../models/medieval+cannon+3d+model.glb",
+  "source": "../../models/props/canones.glb",
   "out": ".",
+  "cluster": 0.005,
   "props": [
-    {"piece": 0, "name": "canon_pesado", "size": 2.4, "material": "wood_warm", "split": {"height": 0.5, "above": "iron"}, "tris": 6000},
-    {"piece": 2, "name": "canon", "size": 1.8, "material": "wood_warm", "split": {"height": 0.5, "above": "iron"}, "tris": 6000},
-    {"piece": 1, "name": "canon_giratorio", "size": 1.0, "material": "iron"}
+    {"piece": 0, "name": "canon_pesado", "size": 2.4},
+    {"piece": 1, "name": "canon_giratorio", "size": 1.0}
   ]
 }

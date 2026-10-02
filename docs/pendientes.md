@@ -8,8 +8,8 @@ Orden sugerido: **guardado → escotilla y bodega → combate** (el combate nece
 
 - [ ] Medir FPS en el Nobara a 1440p con cada interruptor de menú dev → Gráficos (Leo)
 - [x] Guardar y cargar partida (`user://partida.json`: inventario, objetos colocados, barco, jugador, hora; al salir y desde la pausa)
-- [x] Escotilla abierta, escalera empinada y piso de bodega (`HoldInterior`, con farol)
-- [ ] Mástil modelado (mástil + verga + cofa) con la vela atada a la verga; hoy es un cilindro
+- [x] Bodega: rejilla que deja ver y pasar la luz, E para bajar/subir (`HatchControl`), escala de palos y piso (`HoldInterior`, con farol)
+- [x] Mástil modelado (mástil + verga + cofa) con vela cuadra colgada de la verga
 - [ ] Colgar objetos en paredes (campana, repisa, soporte): hoy solo se apoyan en pisos
 - [ ] Estela del barco al avanzar (espuma detrás y a los costados)
 - [ ] Pruebas a mano: sensación de navegación (`ShipRig.sail_scale`), brillo de la noche
@@ -19,7 +19,11 @@ Orden sugerido: **guardado → escotilla y bodega → combate** (el combate nece
 ## Arte pendiente (Tripo, exportar "por piezas"; hojas de ≤ 13 objetos)
 
 - [ ] Cañones por piezas (tubo aparte de la cureña): necesario para apuntar y disparar
-- [ ] Hoja de cubierta: timón (rueda + pedestal), ancla, cabrestante, farol, barril + tapa, caja de balas
+- [x] Timón (rueda + pedestal), farol, cabrestante y caja de balas (2026-10-01)
+- [ ] Hoja de cubierta: ancla, barril + tapa
+- [ ] Cabrestante funcional (levar el ancla); farol colgable de un gancho
+- [ ] Escala de palos con modelo (hoy primitivas) y subirla trepando en vez de teletransporte
+- [ ] Probar a mano el empuje de la vela (`side_push`, `sail_scale`) en el barco de 16 m
 - [ ] Hoja de pesca: caña, carrete, anzuelo, arpón, cuerda, flotador, caja de anzuelos, peces
 - [ ] Hoja de mástiles (prompt para ChatGPT listo)
 - [ ] Props de varios materiales: cofre con herrajes, botella de vidrio transparente
@@ -29,8 +33,9 @@ Orden sugerido: **guardado → escotilla y bodega → combate** (el combate nece
 
 ## Combate (fase 6, estilo Sea of Thieves)
 
-- [ ] Cañón funcional: apuntar (tubo móvil), cargar, disparar por banda
-- [ ] Proyectil balístico con detección de impacto por rayo
+- [x] Cañón funcional: E lo toma (cámara propia), el mouse apunta (giro ±45°, tubo −10° a +30°), clic dispara una bala del inventario, recarga 3 s
+- [ ] Cañón: animación de cargar con el atacador, sonido, humo con textura
+- [x] Proyectil balístico con detección de impacto por rayo (salpica en el mar; falta daño)
 - [ ] Agujeros en el punto de impacto, con fuga
 - [ ] Nivel de agua por barco: si sube, el barco se hunde
 - [ ] Balde para achicar y tablones para tapar agujeros

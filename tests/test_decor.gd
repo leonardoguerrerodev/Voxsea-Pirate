@@ -1,6 +1,7 @@
 extends Node
 ## Chequeo de la decoración: un objeto colocado suma masa y mueve el centro de
-## gravedad hacia su lado; recogerlo lo deshace; el cofre se abre y se cierra.
+## gravedad hacia su lado; recogerlo lo deshace; el cofre se abre y se cierra;
+## el timón es una pieza timón con rueda que gira; el farol se prende y se apaga.
 ## ../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- test_decor
 
 var _failed: bool = false
@@ -37,5 +38,22 @@ func _ready() -> void:
 	piece.free()
 	ship.refresh_mass()
 	_expect(is_equal_approx(ship.mass, empty_mass), "al recogerlo vuelve la masa original")
+	# El timón es un objeto: colocado es la pieza timón del barco y su rueda gira.
+	var helm: DecorPiece = DecorPiece.create(load("res://items/data/timon.tres"))
+	ship.add_child(helm)
+	_expect(ship.parts(ShipPart.Kind.HELM) == [helm], "el timón colocado es la pieza timón del barco")
+	var wheel: OpenableProp = helm.model
+	_expect(not wheel.toggle(), "el timón no se abre (E queda para tomarlo)")
+	wheel.set_turn(PI / 2.0)
+	var spoke: Node3D = wheel.get_child(1)
+	_expect(spoke.basis.x.is_equal_approx(Vector3.UP), "la rueda gira en su eje")
+	# El farol se prende y se apaga con E (toggle); apagado no da luz.
+	var lamp: DecorPiece = DecorPiece.create(load("res://items/data/farol.tres"))
+	ship.add_child(lamp)
+	var lantern: Lantern = lamp.model
+	var light: OmniLight3D = lantern.get_node("Luz")
+	_expect(lantern.open and light.visible, "el farol empieza encendido")
+	_expect(lantern.toggle() and not lantern.open and not light.visible, "E lo apaga")
+	_expect(lantern.toggle() and lantern.open and light.visible, "E lo prende")
 	print("FALLA" if _failed else "OK")
 	get_tree().quit(1 if _failed else 0)

@@ -59,8 +59,8 @@ static func capture(p_ship: ShipBody, p_player: Player) -> Dictionary:
 	for child: Node in p_ship.get_children():
 		var piece: DecorPiece = child as DecorPiece
 		if piece:
-			var openable: OpenableProp = piece.model as OpenableProp
-			decor.append({"id": String(piece.item.id), "transform": _pack(piece.transform), "open": openable != null and openable.open})
+			# `open`: abierto (cofre, estufa) o encendido (farol); los demás no lo tienen.
+			decor.append({"id": String(piece.item.id), "transform": _pack(piece.transform), "open": piece.model.get("open") == true})
 	return {
 		"version": VERSION,
 		"hour": Game.hour,
@@ -94,9 +94,8 @@ static func restore(data: Dictionary, p_ship: ShipBody, p_player: Player) -> voi
 			continue
 		var piece: DecorPiece = DecorPiece.create(item)
 		piece.transform = _unpack(entry.transform)
-		var openable: OpenableProp = piece.model as OpenableProp
-		if openable:
-			openable.open = entry.open
+		if "open" in piece.model:
+			piece.model.set("open", entry.open)
 		p_ship.add_child(piece)
 	p_ship.refresh_mass()
 

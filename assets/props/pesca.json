@@ -1,0 +1,11 @@
+{
+  "source": "../../models/props/pesca.glb",
+  "out": ".",
+  "cluster": 0.005,
+  "props": [
+    {"piece": 3, "name": "balde_carnada", "size": 0.5},
+    {"piece": 0, "name": "cana", "size": 2.2, "axis": "x"},
+    {"piece": 1, "name": "arpon", "size": 1.8, "axis": "x"},
+    {"piece": 2, "name": "ancla", "size": 1.2, "axis": "z"}
+  ]
+}
