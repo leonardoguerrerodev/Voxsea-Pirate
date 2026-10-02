@@ -1,10 +1,10 @@
 class_name ShipPart
 extends Node3D
-## Pieza del barco: vela, timón, ancla o carga (NONE: un prop con masa). Va como
+## Pieza del barco: vela, timón, ancla, cañón (CannonControl) o carga (NONE: un prop con masa). Va como
 ## hijo del ShipBody; su posición es la base, apoyada en la cubierta. Su masa
 ## suma a la del barco y mueve el centro de gravedad. ShipPartsView la dibuja.
 
-enum Kind { NONE, SAIL, HELM, ANCHOR }
+enum Kind { NONE, SAIL, HELM, ANCHOR, CANNON }
 
 @export var kind: Kind = Kind.NONE
 @export_range(0.0, 50000.0, 1.0, "suffix:kg") var mass: float = 0.0

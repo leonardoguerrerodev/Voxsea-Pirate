@@ -1,7 +1,8 @@
 extends Node
 ## Chequeo de la brújula: con el jugador en un barco girado y mirando en varias
 ## direcciones, la aguja apunta al norte del mapa. Y equipada no impide
-## caminar.
+## caminar; en la mano fuerza la primera persona, al guardarla vuelve la tercera
+## y V cambia a primera persona; la rueda acerca la cámara hasta el hombro.
 ## ../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- test_compass
 
 const LOOKS: Array[float] = [0.0, 1.2, -2.5, 3.0]
@@ -35,7 +36,7 @@ func _ready() -> void:
 	_player = (load("res://player/player.tscn") as PackedScene).instantiate()
 	ship.add_child(_player)
 	_player.global_position = Vector3(0, 0.1, 0)
-	_compass = _player.get_node("Head/Camera/Compass")
+	_compass = _player.compass
 	_compass.set_equipped(true)
 
 
@@ -55,9 +56,30 @@ func _physics_process(_delta: float) -> void:
 		_look += 1
 	if _frame == 90 * LOOKS.size():
 		Input.action_press("move_forward")
-	if _frame == 90 * LOOKS.size() + 90:
+	var end: int = 90 * LOOKS.size() + 90
+	if _frame == end:
 		Input.action_release("move_forward")
 		_expect(_player.global_position.length() > 2.0, "con la brújula en la mano camina (%.1f m)" % _player.global_position.length())
+		_expect(_camera_distance() < 0.3, "con la brújula en la mano la vista es en primera persona (cámara a %.2f m de la cabeza)" % _camera_distance())
+		_compass.set_equipped(false)
+	if _frame == end + 60:
+		_expect(_camera_distance() > 2.0, "al guardarla vuelve a tercera persona (cámara a %.2f m)" % _camera_distance())
+		_player.first_person = true  # lo que hace V
+	if _frame == end + 120:
+		_expect(_camera_distance() < 0.3, "V cambia a primera persona (cámara a %.2f m)" % _camera_distance())
+		_player.first_person = false
+		# Rueda hacia adentro muchas veces: se acerca hasta el hombro, no más.
+		for i: int in 10:
+			var wheel: InputEventMouseButton = InputEventMouseButton.new()
+			wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+			wheel.pressed = true
+			_player._unhandled_input(wheel)
+	if _frame == end + 180:
+		_expect(absf(_camera_distance() - _player.zoom_min) < 0.15, "la rueda acerca hasta el hombro y no más (cámara a %.2f m)" % _camera_distance())
 		print("FALLA" if _failed else "OK")
 		get_tree().quit(1 if _failed else 0)
 		set_physics_process(false)
+
+
+func _camera_distance() -> float:
+	return _player.CAMERA.global_position.distance_to(_player.HEAD.global_position)

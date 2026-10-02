@@ -21,6 +21,12 @@ const WATER_DENSITY: float = 1000.0
 ## sigue cada pendiente del mar (medido: 20° → 7° de escora máx. con 3). No frena
 ## el giro de rumbo.
 @export_range(0.0, 10.0, 0.1) var roll_damping: float = 3.0
+## Escora o cabeceo desde donde empuja el adrizado (°): bajo esto manda el mar.
+@export_range(0.0, 90.0, 1.0, "suffix:°") var max_heel: float = 25.0
+## Rigidez del adrizado sobre `max_heel` (1/s²). El barco nunca se da vuelta, como
+## en Sea of Thieves: dado vuelta, quien va en cubierta cae al agua y reaparece
+## bajo el casco, en un bucle.
+@export_range(0.0, 30.0, 0.5) var righting: float = 6.0
 
 var profile: HullProfile
 ## Volumen sumergido en el último paso físico (m³). Lo usa ShipRig.
@@ -64,6 +70,19 @@ func _physics_process(_delta: float) -> void:
 	if freeze:
 		return
 	_apply_buoyancy()
+	_apply_righting()
+
+
+func _apply_righting() -> void:
+	var up: Vector3 = global_basis.y
+	var excess: float = up.angle_to(Vector3.UP) - deg_to_rad(max_heel)
+	var axis: Vector3 = up.cross(Vector3.UP)
+	if excess <= 0.0 or axis.is_zero_approx():
+		return
+	# Resorte en ejes del barco, escalado por la inercia: la misma respuesta en
+	# cualquier casco.
+	var local: Vector3 = global_basis.inverse() * axis.normalized()
+	apply_torque(global_basis * (local * inertia * righting * excess))
 
 
 func _apply_buoyancy() -> void:

@@ -1,0 +1,11 @@
+{
+  "source": "../../models/props/canon_partes.glb",
+  "out": ".",
+  "cluster": 0.005,
+  "props": [
+    {"piece": 2, "name": "canon_tubo", "size": 1.8},
+    {"piece": 0, "name": "canon_cureña", "size": 1.28},
+    {"piece": 1, "name": "bala", "size": 0.15},
+    {"piece": 3, "name": "atacador", "size": 2.2, "axis": "x"}
+  ]
+}

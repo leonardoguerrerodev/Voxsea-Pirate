@@ -1,0 +1,11 @@
+{
+  "source": "../../models/props/pescados.glb",
+  "out": ".",
+  "cluster": 0.005,
+  "props": [
+    {"piece": 0, "name": "caballa", "size": 0.35, "inflate": 3.0, "lay_side": true},
+    {"piece": 3, "name": "caballa_cocida", "size": 0.35, "inflate": 3.0, "lay_side": true},
+    {"piece": 1, "name": "pargo", "size": 0.4, "inflate": 3.0, "lay_side": true},
+    {"piece": 2, "name": "pargo_cocido", "size": 0.4, "inflate": 3.0, "lay_side": true}
+  ]
+}

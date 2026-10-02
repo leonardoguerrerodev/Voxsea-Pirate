@@ -1,0 +1,12 @@
+{
+  "source": "../../models/props/timon_farol.glb",
+  "out": ".",
+  "cluster": 0.005,
+  "props": [
+    {"piece": 0, "name": "timon_pedestal", "size": 1.1, "rotate": 90},
+    {"piece": 1, "name": "timon_rueda", "size": 1.19},
+    {"piece": 2, "name": "farol_cuerpo", "size": 0.45},
+    {"piece": 4, "name": "farol_globo", "size": 0.26},
+    {"piece": 3, "name": "farol_asa", "size": 0.36}
+  ]
+}

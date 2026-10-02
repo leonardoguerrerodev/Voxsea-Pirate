@@ -20,3 +20,9 @@ Thumbs.db
 # Locales de cada equipo
 override.cfg
 Godot_v*.x86_64
+
+# Caché de Python (tools/*.py corren dentro de Blender)
+__pycache__/
+
+# Modelos crudos (Tripo/Meshy, cientos de MB): fuera de git, ver CLAUDE.md
+models/

@@ -1,11 +1,12 @@
 extends Node
 ## Chequeo del casco fijo en mar calmo: masa del perfil, una caja cerrada flota,
-## una balsa flota baja, peso a un costado escora y la balandra flota derecha.
+## una balsa flota baja, peso a un costado escora la balandra flota derecha y,
+## dada vuelta, se endereza.
 ## ../Godot_v4.7.2-stable_linux.x86_64 --headless --fixed-fps 60 --path . res://tests/run.tscn -- test_hull
 
 const SLOOP: String = "res://assets/ships/sloop/sloop.grid"
 ## Cubierta de la balandra sobre la quilla (tools/hull_to_grid.py la alinea ahí).
-const SLOOP_DECK: float = 5.5
+const SLOOP_DECK: float = 3.7
 
 var _calm: WaveSettings = WaveSettings.new()
 var _failed: bool = false
@@ -22,6 +23,9 @@ func _ready() -> void:
 	weight.position = Vector3(0.5, 4.0, 4.0)
 	_ships["peso_babor"] = _spawn(HullProfile.box(Vector3i(10, 8, 16), 600.0), Vector3(60, 0, 0), [weight])
 	_ships["balandra"] = _spawn(HullProfile.from_file(SLOOP, 600.0), Vector3(90, 0, 0))
+	# Casi dada vuelta (120°): el adrizado la endereza.
+	_ships["volcada"] = _spawn(HullProfile.from_file(SLOOP, 600.0), Vector3(130, 0, 0))
+	(_ships["volcada"] as ShipBody).rotation.z = deg_to_rad(120.0)
 
 
 func _expect(ok: bool, what: String) -> void:
@@ -69,6 +73,8 @@ func _physics_process(_delta: float) -> void:
 		var draft: float = -sloop.global_position.y
 		_expect(draft > 0.0 and draft < SLOOP_DECK, "balandra flota con la cubierta afuera (calado %.2f m, %.0f kg)" % [draft, sloop.mass])
 		_expect(absf(_roll(sloop)) < 0.05, "balandra derecha (escora %.3f rad)" % _roll(sloop))
+		var flipped: ShipBody = _ships["volcada"]
+		_expect(flipped.global_basis.y.angle_to(Vector3.UP) < deg_to_rad(flipped.max_heel + 5.0), "balandra volcada se endereza (%.0f°)" % rad_to_deg(flipped.global_basis.y.angle_to(Vector3.UP)))
 		print("FALLA" if _failed else "OK")
 		get_tree().quit(1 if _failed else 0)
 		set_physics_process(false)

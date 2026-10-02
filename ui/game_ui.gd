@@ -4,7 +4,7 @@ extends CanvasLayer
 
 const HELP: String = """WASD moverse · Espacio saltar · Shift correr · C agacharse
 E tomar el timón (A/D timón · W/S velas · R ancla · E soltar)
-Tab inventario (clic der. colocar) · E abrir · F recoger · rueda girar · Q brújula · F3 centro de gravedad · F1 ocultar esta ayuda · Esc pausa"""
+Tab inventario (clic der. colocar) · E abrir o usar (timón, cañón: clic dispara) · F recoger · rueda girar · Q brújula · B bailar · V vista · rueda zoom · F3 centro de gravedad · F1 ocultar esta ayuda · Esc pausa"""
 
 ## A quién se le muestran las coordenadas.
 @export var player: Player

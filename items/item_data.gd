@@ -12,3 +12,5 @@ extends Resource
 @export var prop: PackedScene
 ## Masa al colocarlo en el barco: suma al barco y mueve su centro de gravedad.
 @export_range(0.0, 5000.0, 0.5, "suffix:kg") var mass: float = 1.0
+## Qué pieza del barco es al colocarlo (timón: se toma con E). NONE = carga.
+@export var part_kind: ShipPart.Kind = ShipPart.Kind.NONE

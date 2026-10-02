@@ -12,6 +12,7 @@ static func create(p_item: ItemData) -> DecorPiece:
 	var piece: DecorPiece = DecorPiece.new()
 	piece.item = p_item
 	piece.mass = p_item.mass
+	piece.kind = p_item.part_kind
 	piece.name = String(p_item.id)
 	piece.model = p_item.prop.instantiate()
 	piece.add_child(piece.model)

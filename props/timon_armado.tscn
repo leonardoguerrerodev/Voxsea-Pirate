@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://props/openable_prop.gd" id="1_prop"]
+[ext_resource type="PackedScene" path="res://assets/props/timon_pedestal.glb" id="2_base"]
+[ext_resource type="PackedScene" path="res://assets/props/timon_rueda.glb" id="3_part"]
+
+[node name="timon_armado" type="Node3D"]
+script = ExtResource("1_prop")
+base = ExtResource("2_base")
+part = ExtResource("3_part")
+part_offset = Vector3(0, 0.385, 0.37)
+hinge = Vector3(0, 0.98, 0.37)
+hinge_axis = Vector3(0, 0, 1)
+movable = false
